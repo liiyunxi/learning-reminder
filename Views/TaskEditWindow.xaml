@@ -1,0 +1,172 @@
+<Window x:Class="LearningReminder.Views.TaskEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="clr-namespace:LearningReminder.Resources"
+        Title="{x:Static res:AppStrings.TaskEditWindowTitleNew}"
+        Width="560" SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource Brush.Page}"
+        FontFamily="Microsoft YaHei UI, Segoe UI"
+        Foreground="{StaticResource Brush.Text}">
+
+    <!-- 自绘标题栏：内容与主题一致，同时保留系统拖动与投影 -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="46" ResizeBorderThickness="0"
+                      CornerRadius="0" GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Border BorderBrush="{StaticResource Brush.Border}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="46" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- ===== 标题栏 ===== -->
+            <Grid Grid.Row="0" Background="{StaticResource Brush.Page}">
+                <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{StaticResource AppLogo}" Width="22" Height="22" />
+                    <TextBlock x:Name="TitleBarText" Margin="10,0,0,0" VerticalAlignment="Center"
+                               FontSize="13" FontWeight="SemiBold" />
+                </StackPanel>
+
+                <Button Style="{StaticResource TitleBarCloseButton}"
+                        HorizontalAlignment="Right" Margin="0,0,8,0"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="OnCancelClick">
+                    <Path Data="M 0,0 L 9,9 M 9,0 L 0,9" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                          StrokeThickness="1.3" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                          Width="9" Height="9" Stretch="Uniform" />
+                </Button>
+            </Grid>
+
+            <!-- ===== 表单 ===== -->
+            <StackPanel Grid.Row="1" Margin="24,2,24,20">
+
+                <!-- 任务名称 -->
+                <TextBlock Text="{x:Static res:AppStrings.FieldTitle}" Style="{StaticResource Text.FieldLabel}" />
+                <TextBox x:Name="TitleBox" Style="{StaticResource TextBox.Base}" />
+                <TextBlock Text="{x:Static res:AppStrings.FieldTitleHint}" Style="{StaticResource Text.Muted}"
+                           Margin="2,6,0,0" />
+
+                <!-- 学习链接 -->
+                <TextBlock Text="{x:Static res:AppStrings.FieldLink}" Style="{StaticResource Text.FieldLabel}" Margin="0,14,0,6" />
+                <TextBox x:Name="LinkBox" Style="{StaticResource TextBox.Base}" />
+                <TextBlock Text="{x:Static res:AppStrings.FieldLinkHint}" Style="{StaticResource Text.Muted}"
+                           Margin="2,6,0,0" TextWrapping="Wrap" />
+
+                <!-- 重复 -->
+                <TextBlock Text="{x:Static res:AppStrings.FieldRepeat}" Style="{StaticResource Text.FieldLabel}" Margin="0,16,0,8" />
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="RepeatDailyRadio" Style="{StaticResource Pill.Radio}" GroupName="RepeatType"
+                                 Content="{x:Static res:AppStrings.RepeatDaily}" Checked="OnRepeatTypeChanged" />
+                    <RadioButton x:Name="RepeatWeeklyRadio" Style="{StaticResource Pill.Radio}" GroupName="RepeatType"
+                                 Content="{x:Static res:AppStrings.RepeatWeekly}" Checked="OnRepeatTypeChanged" />
+                    <RadioButton x:Name="RepeatMonthlyRadio" Style="{StaticResource Pill.Radio}" GroupName="RepeatType"
+                                 Content="{x:Static res:AppStrings.RepeatMonthly}" Checked="OnRepeatTypeChanged" />
+                    <RadioButton x:Name="RepeatCustomRadio" Style="{StaticResource Pill.Radio}" GroupName="RepeatType"
+                                 Content="{x:Static res:AppStrings.RepeatCustom}" Checked="OnRepeatTypeChanged" />
+                </StackPanel>
+
+                <!-- 重复：每周几（单选） -->
+                <StackPanel x:Name="WeeklyPanel" Visibility="Collapsed" Margin="0,4,0,0">
+                    <TextBlock Text="{x:Static res:AppStrings.FieldRepeatWeekday}" Style="{StaticResource Text.FieldLabel}" />
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="WeeklyMon" Style="{StaticResource Pill.Radio}" GroupName="WeeklyDay" Content="{x:Static res:AppStrings.WeekdayMonday}" />
+                        <RadioButton x:Name="WeeklyTue" Style="{StaticResource Pill.Radio}" GroupName="WeeklyDay" Content="{x:Static res:AppStrings.WeekdayTuesday}" />
+                        <RadioButton x:Name="WeeklyWed" Style="{StaticResource Pill.Radio}" GroupName="WeeklyDay" Content="{x:Static res:AppStrings.WeekdayWednesday}" />
+                        <RadioButton x:Name="WeeklyThu" Style="{StaticResource Pill.Radio}" GroupName="WeeklyDay" Content="{x:Static res:AppStrings.WeekdayThursday}" />
+                        <RadioButton x:Name="WeeklyFri" Style="{StaticResource Pill.Radio}" GroupName="WeeklyDay" Content="{x:Static res:AppStrings.WeekdayFriday}" />
+                        <RadioButton x:Name="WeeklySat" Style="{StaticResource Pill.Radio}" GroupName="WeeklyDay" Content="{x:Static res:AppStrings.WeekdaySaturday}" />
+                        <RadioButton x:Name="WeeklySun" Style="{StaticResource Pill.Radio}" GroupName="WeeklyDay" Content="{x:Static res:AppStrings.WeekdaySunday}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 重复：每月几号 -->
+                <StackPanel x:Name="MonthlyPanel" Visibility="Collapsed" Margin="0,4,0,0">
+                    <TextBlock Text="{x:Static res:AppStrings.FieldRepeatMonthDay}" Style="{StaticResource Text.FieldLabel}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="MonthDayBox" Style="{StaticResource TextBox.Base}" Width="70" />
+                        <TextBlock Text="{x:Static res:AppStrings.FieldRepeatMonthHint}" Style="{StaticResource Text.Muted}"
+                                   Margin="12,0,0,0" VerticalAlignment="Center" TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 重复：自定义（多选周几） -->
+                <StackPanel x:Name="CustomPanel" Visibility="Collapsed" Margin="0,4,0,0">
+                    <TextBlock Text="{x:Static res:AppStrings.FieldRepeatCustom}" Style="{StaticResource Text.FieldLabel}" />
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,2">
+                        <CheckBox x:Name="CustomMon" Style="{StaticResource Pill.Check}" Content="{x:Static res:AppStrings.WeekdayMonday}" />
+                        <CheckBox x:Name="CustomTue" Style="{StaticResource Pill.Check}" Content="{x:Static res:AppStrings.WeekdayTuesday}" />
+                        <CheckBox x:Name="CustomWed" Style="{StaticResource Pill.Check}" Content="{x:Static res:AppStrings.WeekdayWednesday}" />
+                        <CheckBox x:Name="CustomThu" Style="{StaticResource Pill.Check}" Content="{x:Static res:AppStrings.WeekdayThursday}" />
+                        <CheckBox x:Name="CustomFri" Style="{StaticResource Pill.Check}" Content="{x:Static res:AppStrings.WeekdayFriday}" />
+                        <CheckBox x:Name="CustomSat" Style="{StaticResource Pill.Check}" Content="{x:Static res:AppStrings.WeekdaySaturday}" />
+                        <CheckBox x:Name="CustomSun" Style="{StaticResource Pill.Check}" Content="{x:Static res:AppStrings.WeekdaySunday}" />
+                        <Button Content="{x:Static res:AppStrings.ButtonWorkdays}" Style="{StaticResource Button.Link}"
+                                Padding="10,6" FontSize="12" Click="OnWorkdaysClick" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 检查方式 -->
+                <TextBlock Text="{x:Static res:AppStrings.FieldMode}" Style="{StaticResource Text.FieldLabel}" Margin="0,14,0,8" />
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="ModeIntervalRadio" Style="{StaticResource Radio.Base}"
+                                 Content="{x:Static res:AppStrings.ModeIntervalLabel}" GroupName="Mode"
+                                 Checked="OnModeChanged" />
+                    <RadioButton x:Name="ModeMilestoneRadio" Style="{StaticResource Radio.Base}"
+                                 Content="{x:Static res:AppStrings.ModeMilestoneLabel}" GroupName="Mode"
+                                 Checked="OnModeChanged" />
+                </StackPanel>
+                <TextBlock x:Name="ModeHint" Style="{StaticResource Text.Muted}" Margin="0,8,0,0"
+                           TextWrapping="Wrap" />
+
+                <!-- 定时询问：间隔 -->
+                <StackPanel x:Name="IntervalPanel" Margin="0,14,0,0">
+                    <TextBlock Text="{x:Static res:AppStrings.FieldInterval}" Style="{StaticResource Text.FieldLabel}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="IntervalBox" Style="{StaticResource TextBox.Base}" Width="90" />
+                        <Button Content="30" Style="{StaticResource Button.Link}" Tag="30" Click="OnQuickIntervalClick" />
+                        <Button Content="60" Style="{StaticResource Button.Link}" Tag="60" Click="OnQuickIntervalClick" />
+                        <Button Content="90" Style="{StaticResource Button.Link}" Tag="90" Click="OnQuickIntervalClick" />
+                        <Button Content="120" Style="{StaticResource Button.Link}" Tag="120" Click="OnQuickIntervalClick" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- 里程碑：每日核对时间 + 清单 -->
+                <StackPanel x:Name="MilestonePanel" Margin="0,14,0,0" Visibility="Collapsed">
+                    <TextBlock Text="{x:Static res:AppStrings.FieldDailyReminder}" Style="{StaticResource Text.FieldLabel}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox x:Name="DailyTimeBox" Style="{StaticResource TextBox.Base}" Width="90" />
+                        <CheckBox x:Name="NoReminderCheck" Content="{x:Static res:AppStrings.DailyReminderOff}"
+                                  Style="{StaticResource CheckBox.Base}"
+                                  Margin="14,0,0,0" VerticalAlignment="Center"
+                                  Checked="OnNoReminderChanged" Unchecked="OnNoReminderChanged" />
+                    </StackPanel>
+
+                    <TextBlock Text="{x:Static res:AppStrings.FieldMilestones}" Style="{StaticResource Text.FieldLabel}" Margin="0,14,0,6" />
+                    <TextBox x:Name="MilestoneBox" Style="{StaticResource TextBox.Base}"
+                             Height="110" AcceptsReturn="True" TextWrapping="Wrap"
+                             VerticalContentAlignment="Top" />
+                    <TextBlock x:Name="MilestoneHint" Style="{StaticResource Text.Muted}"
+                               Margin="2,6,0,0" TextWrapping="Wrap" />
+                </StackPanel>
+
+                <!-- 校验提示 -->
+                <TextBlock x:Name="ErrorText" Foreground="{StaticResource Brush.Danger}"
+                           FontSize="12" Margin="0,14,0,0" TextWrapping="Wrap" Visibility="Collapsed" />
+
+                <!-- 操作按钮 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                    <Button Content="{x:Static res:AppStrings.ButtonCancel}" Style="{StaticResource Button.Ghost}"
+                            MinWidth="84" Click="OnCancelClick" />
+                    <Button Content="{x:Static res:AppStrings.ButtonSave}" Style="{StaticResource Button.Primary}"
+                            MinWidth="84" Margin="10,0,0,0" Click="OnSaveClick" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

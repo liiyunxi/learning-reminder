@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document · 使用文档 · 学习计划</title>
+  <meta name="description" content="学习计划使用文档：快速开始、创建任务、定时询问与里程碑、重复规则、学习链接、托盘与开机自启、数据位置、常见问题。" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html">
+      <img src="assets/logo.svg" alt="学习计划 Logo" />
+      <span>学习计划</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">首页</a>
+      <a href="download.html">Download</a>
+      <a href="document.html" class="active">Document</a>
+      <a href="support.html">Support us</a>
+      <a class="nav-cta" href="download.html">免费下载</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container doc-layout">
+
+  <aside class="doc-toc">
+    <a href="#start">快速开始</a>
+    <a href="#create">创建任务</a>
+    <a href="#modes">两种检查方式</a>
+    <a href="#repeat">重复规则</a>
+    <a href="#link">学习链接</a>
+    <a href="#answer">提醒与应答</a>
+    <a href="#tray">托盘与开机自启</a>
+    <a href="#calendar">日历与记录</a>
+    <a href="#data">数据与日志位置</a>
+    <a href="#uninstall">退出与卸载</a>
+    <a href="#faq">常见问题</a>
+  </aside>
+
+  <main class="doc-content">
+
+    <h2 id="start">快速开始</h2>
+    <p>下载自包含版 exe 后双击运行。应用启动后会出现在系统托盘区（任务栏右下角；如果看不到，点击托盘区的 <code>^</code> 展开隐藏图标），同时打开主窗口。</p>
+    <ul>
+      <li>关闭主窗口不会退出应用，它会继续在托盘里常驻提醒；</li>
+      <li>再次打开主窗口：左键单击或双击托盘图标，也可以右键选择「打开主界面」；</li>
+      <li>完全退出：右键托盘图标，选择「退出」。</li>
+    </ul>
+
+    <h2 id="create">创建任务</h2>
+    <p>在主窗口底部点击「新建任务」，在弹窗中填写：</p>
+    <ul>
+      <li><strong>任务名称</strong>：例如「学习 Redis 数据类型」；</li>
+      <li><strong>学习链接（可选）</strong>：教程、视频或文档地址，填了之后提醒时会多一个「立即学习」按钮；</li>
+      <li><strong>重复</strong>：每天 / 每周 / 每月 / 自定义，详见下文；</li>
+      <li><strong>检查方式</strong>：定时询问 或 里程碑；</li>
+      <li>根据检查方式设置询问间隔（分钟）或每日核对时间与里程碑清单。</li>
+    </ul>
+    <p>已有的任务可以随时在任务卡片上点「编辑」修改，点「删除」移除（删除任务不会删掉历史检查记录）。</p>
+
+    <h2 id="modes">两种检查方式</h2>
+
+    <h3>1. 定时询问（按小时制）</h3>
+    <p>适合"今天要持续推进"的学习任务。设定一个询问间隔（默认 60 分钟，可在 5–1440 分钟之间调整，提供 30/60/90/120 快捷选项）：</p>
+    <ul>
+      <li>到点后系统通知弹出「已完成 / 还没完成 / 15 分钟后再问」；</li>
+      <li>选「还没完成」：按间隔继续追问；</li>
+      <li>选「已完成」：当天不再提醒，任务卡片标记「今日已完成」；</li>
+      <li>选「稍后再说」：推迟 15 分钟后再问；</li>
+      <li>长时间不应答（约 5 分钟）：自动按「稍后再说」处理，避免待办堆积。</li>
+    </ul>
+    <p>当天的完成标记在跨天（午夜后）自动重置，第二天按重复规则重新开始。</p>
+
+    <h3>2. 里程碑（按完成情况）</h3>
+    <p>适合有明确子目标的任务，例如「学完 Redis 的类型」可以拆成：</p>
+    <ul>
+      <li>看完 string 常用命令</li>
+      <li>学完 hash 与 zset</li>
+      <li>理解 list / set 的使用场景</li>
+    </ul>
+    <p>每个里程碑的完成状态跨天保留，不会第二天清零。可以设置「每日核对时间」（默认 21:00）到点提醒勾选；全部里程碑勾完后任务才标记完成。也可以勾选「不主动提醒」，只靠手动检查推进。</p>
+
+    <h2 id="repeat">重复规则</h2>
+    <ul>
+      <li><strong>每天</strong>：每个自然日都执行；</li>
+      <li><strong>每周</strong>：固定一个星期几执行，例如每周一做复盘；</li>
+      <li><strong>每月</strong>：每月固定日期执行，例如每月 1 日整理笔记。当月没有该日期时（如 2 月没有 31 号），自动顺延到当月最后一天；</li>
+      <li><strong>自定义</strong>：勾选每周哪几天执行，提供「工作日」快捷按钮一键选择周一至周五。</li>
+    </ul>
+    <p>非执行日：任务不会出现在「今日任务」列表里，也不会触发任何提醒，主界面底部会以一行灰字列出今天不执行的任务。</p>
+
+    <h2 id="link">学习链接</h2>
+    <p>链接支持 <code>http://</code> 或 <code>https://</code> 地址，只填域名时会自动补全为 https。任务带有链接时，三个位置会出现学习入口：</p>
+    <ol>
+      <li>系统通知上的「立即学习」按钮；</li>
+      <li>右下角确认卡片上的「立即学习」按钮（点击后卡片保留，方便学完回来打卡）；</li>
+      <li>主界面任务卡片上的「打开链接」按钮。</li>
+    </ol>
+    <p>点击后调用系统默认浏览器打开对应网页。</p>
+
+    <h2 id="answer">提醒与应答</h2>
+    <p>提醒按优先级有三种表现形式，保证你一定能完成打卡：</p>
+    <ol>
+      <li><strong>Windows 系统通知</strong>：带操作按钮，在通知上点选即可，无需切换窗口；</li>
+      <li><strong>右下角确认卡片</strong>：通知发出约 20 秒未处理时自动出现，不抢焦点、不占任务栏，带 90 秒倒计时；里程碑模式还能直接在卡片上勾选子目标；</li>
+      <li><strong>托盘气泡</strong>：系统通知不可用时的兜底通道，点击气泡打开确认卡片。</li>
+    </ol>
+    <p>如果系统开启了「请勿打扰 / 专注助手」，通知横幅会被系统拦截，但通知仍会进入通知中心，确认卡片也会照常出现。</p>
+
+    <h2 id="tray">托盘与开机自启</h2>
+    <p>托盘图标有三种颜色状态：靛蓝＝有待办任务，橙色＝有等待你确认的询问，绿色＝今日任务全部完成。鼠标悬停可看到「今日 x/y 完成」。</p>
+    <p>开启开机自启有两种方式：</p>
+    <ul>
+      <li>主窗口底部勾选「开机自启」，或右键托盘图标勾选「开机自启」；</li>
+      <li>原理是写入当前用户的注册表 Run 项（<code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code>），不需要管理员权限；登录后应用以 <code>--minimized</code> 静默启动并弹出一次气泡提示。</li>
+    </ul>
+    <p>应用只允许运行一个实例：再次启动时新进程会自动退出并把已有窗口唤到前台。</p>
+
+    <h2 id="calendar">日历与记录</h2>
+    <p>「记录」页左侧是月历，每格用颜色和圆点表示当天完成度：</p>
+    <ul>
+      <li>绿色底：当天应执行的任务全部完成；</li>
+      <li>橙色底：完成了一部分；</li>
+      <li>灰色圆点：当天有任务但没有完成；</li>
+      <li>紫色描边：今天。</li>
+    </ul>
+    <p>点击任意日期，右侧显示当天的检查流水（标记完成 / 仍未完成 / 稍后再说 / 未应答自动推迟 / 里程碑进度）。可以用顶部箭头切换月份，或点「回到今天」快速返回。</p>
+
+    <h2 id="data">数据与日志位置</h2>
+    <p>所有数据只保存在本机当前用户目录下：</p>
+    <ul>
+      <li>数据文件：<code class="path">%AppData%\LearningReminder\data.json</code></li>
+      <li>错误日志：<code class="path">%AppData%\LearningReminder\log.txt</code></li>
+    </ul>
+    <p>写入采用「临时文件 + 原子替换」，异常断电不会写坏文件；万一文件损坏，应用会自动把原文件改名为 <code>data.json.broken</code> 备份后重新开始。检查记录在本地保留最近 60 天。备份或迁移时，复制整个 <code>LearningReminder</code> 文件夹即可。</p>
+
+    <h2 id="uninstall">退出与卸载</h2>
+    <ol>
+      <li>右键托盘图标 →「退出」，结束常驻进程；</li>
+      <li>删除 exe（或解压目录）即可，应用不向系统目录写任何文件；</li>
+      <li>如需取消开机自启：在应用内取消勾选，或手工删除注册表 Run 项中的 <code>LearningReminder</code> 值；</li>
+      <li>如需清除全部个人数据：删除 <code class="path">%AppData%\LearningReminder</code> 文件夹。</li>
+    </ol>
+
+    <h2 id="faq">常见问题</h2>
+
+    <div class="faq-item">
+      <h3>为什么任务栏右下角看不到图标？</h3>
+      <p>Windows 11 默认把新应用折叠在托盘区的 <code>^</code> 隐藏菜单里。点「隐藏到托盘」时应用会弹气泡说明位置；也可以把图标从隐藏菜单拖到任务栏上永久显示，或在「设置 → 个性化 → 任务栏 → 其他系统托盘图标」里开启。</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>通知弹了但没看到横幅？</h3>
+      <p>检查系统「请勿打扰 / 专注助手」是否开启。开启时横幅会被系统抑制，但通知仍进入通知中心；应用的右下角确认卡片不受影响，会照常出现。</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>为什么首次运行有 SmartScreen 蓝色警告？</h3>
+      <p>免费软件没有购买 EV 代码签名证书（证书每年需数百至数千元），未签名的新程序首次运行会触发 SmartScreen 提示。点「更多信息 → 仍要运行」即可，也可以核对下载页提供的 SHA256 校验值。</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>应用会上传我的学习数据吗？</h3>
+      <p>不会。应用不包含账号体系，不联网收集任何信息；唯一的网络行为是你主动点「立即学习」时由系统浏览器打开你自己填写的网址。</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>修改电脑时间或跨天会怎样？</h3>
+      <p>调度器每秒检查一次日期，检测到跨天后会自动为新的一天重新排期；里程碑勾选状态始终保留，定时询问的当天完成标记会在新的一天重置。</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>占用内存大吗？</h3>
+      <p>纯托盘驻留（未打开主窗口）时私有内存约 20MB、工作集约 80MB；打开主窗口后约 110–130MB。它不内嵌浏览器内核，适合长期后台运行。</p>
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-row">
+    <div>
+      <div style="font-weight:600;color:#374151;margin-bottom:6px;">学习计划 LearningReminder</div>
+      <div>常驻桌面的自律打卡提醒工具 · 数据完全本地存储</div>
+    </div>
+    <div>
+      <a href="index.html">首页</a>
+      <a href="download.html">Download</a>
+      <a href="document.html">Document</a>
+      <a href="support.html">Support us</a>
+      <a href="https://github.com/liiyunxi/learning-reminder" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

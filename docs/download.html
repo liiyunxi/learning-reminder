@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Download · 学习计划</title>
+  <meta name="description" content="下载学习计划 Windows 桌面版：自包含单文件（推荐，免装运行时）或轻量框架依赖版。" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html">
+      <img src="assets/logo.svg" alt="学习计划 Logo" />
+      <span>学习计划</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">首页</a>
+      <a href="download.html" class="active">Download</a>
+      <a href="document.html">Document</a>
+      <a href="support.html">Support us</a>
+      <a class="nav-cta" href="#packages">免费下载</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <section class="page-hero">
+    <h1>下载学习计划</h1>
+    <p>当前版本 v0.1.0 · 适用于 64 位 Windows · 免费、无广告、无需注册</p>
+  </section>
+
+  <section id="packages" style="padding-bottom:24px;">
+    <div class="download-grid">
+
+      <div class="dl-card recommend">
+        <span class="dl-badge">推荐大多数用户</span>
+        <h3>自包含单文件版</h3>
+        <p class="desc">一个 exe 双击即用，不需要预装任何运行环境。可放在任意目录，也可放进启动文件夹实现开机自启。</p>
+        <ul class="dl-meta">
+          <li><span class="k">文件</span><span>LearningReminder-win-x64-selfcontained.exe</span></li>
+          <li><span class="k">大小</span><span>约 69 MB</span></li>
+          <li><span class="k">系统要求</span><span>Windows 10 1809+ / Windows 11（64 位）</span></li>
+          <li><span class="k">前置依赖</span><span>无</span></li>
+          <li><span class="k">SHA256</span><span style="font-family:Consolas,monospace;font-size:11px;word-break:break-all;text-align:right;">A1091ACB089503849D98D9880F467A96EB1D3810443FC4164F7F776691E20691</span></li>
+        </ul>
+        <a class="btn btn-primary"
+           href="https://github.com/liiyunxi/learning-reminder/releases/latest/download/LearningReminder-win-x64-selfcontained.exe">
+          下载自包含版
+        </a>
+      </div>
+
+      <div class="dl-card">
+        <h3>轻量框架依赖版</h3>
+        <p class="desc">体积很小，但运行前需要先安装微软官方的 .NET 8 桌面运行时，适合懂技术的用户。</p>
+        <ul class="dl-meta">
+          <li><span class="k">文件</span><span>LearningReminder-win-x64-framework.zip</span></li>
+          <li><span class="k">大小</span><span>约 6 MB（解压后约 21 MB）</span></li>
+          <li><span class="k">系统要求</span><span>Windows 10 1809+ / Windows 11（64 位）</span></li>
+          <li><span class="k">前置依赖</span><span><a href="https://dotnet.microsoft.com/download/dotnet/8.0" target="_blank" rel="noopener">.NET 8 Desktop Runtime</a></span></li>
+          <li><span class="k">SHA256</span><span style="font-family:Consolas,monospace;font-size:11px;word-break:break-all;text-align:right;">91C7719F692B389C4A4D099B1D91373C938CDA1C10632E16113E7A7CA487796B</span></li>
+        </ul>
+        <a class="btn btn-ghost"
+           href="https://github.com/liiyunxi/learning-reminder/releases/latest/download/LearningReminder-win-x64-framework.zip">
+          下载轻量版
+        </a>
+      </div>
+
+    </div>
+
+    <div class="note-box">
+      <h4>首次运行出现 Windows 保护提示怎么办？</h4>
+      <ol>
+        <li>免费个人软件没有购买代码签名证书，因此 SmartScreen 首次运行会显示「Windows 已保护你的电脑」蓝色提示，这不是病毒。</li>
+        <li>点击提示窗口中的「更多信息」，再点击「仍要运行」即可正常启动，之后不会再次提示。</li>
+        <li>你可以在上面核对文件的 SHA256 值，与本机 <code>Get-FileHash 文件名</code> 的输出一致即文件未被篡改。</li>
+        <li>应用完全开源，也可以自行从 <a href="https://github.com/liiyunxi/learning-reminder" target="_blank" rel="noopener">GitHub 源码</a> 编译，源代码可以自由审计。</li>
+      </ol>
+    </div>
+
+    <div class="req-grid">
+      <div class="req-item"><div class="k">操作系统</div>Windows 10 1809 及以上 / Windows 11</div>
+      <div class="req-item"><div class="k">架构</div>64 位（x64）</div>
+      <div class="req-item"><div class="k">磁盘空间</div>约 70 MB（自包含版）</div>
+      <div class="req-item"><div class="k">网络</div>>仅「立即学习」打开网页时需要，提醒功能完全离线</div>
+    </div>
+
+    <div class="note-box" style="background:#eff6ff;border-color:#bfdbfe;margin-top:18px;">
+      <h4 style="color:#1e40af;">历史版本</h4>
+      <ol style="color:#1e3a8a;">
+        <li>所有版本（含更新日志）都发布在 <a href="https://github.com/liiyunxi/learning-reminder/releases" target="_blank" rel="noopener">GitHub Releases</a>，上面的下载按钮始终指向最新版。</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-row">
+    <div>
+      <div style="font-weight:600;color:#374151;margin-bottom:6px;">学习计划 LearningReminder</div>
+      <div>常驻桌面的自律打卡提醒工具 · 数据完全本地存储</div>
+    </div>
+    <div>
+      <a href="index.html">首页</a>
+      <a href="download.html">Download</a>
+      <a href="document.html">Document</a>
+      <a href="support.html">Support us</a>
+      <a href="https://github.com/liiyunxi/learning-reminder" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

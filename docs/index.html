@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>学习计划 · 常驻桌面的自律打卡提醒工具</title>
+  <meta name="description" content="学习计划是一款 Windows 桌面常驻提醒工具：定时询问进度、里程碑打卡、重复任务、学习链接一键直达。免费、数据本地存储、后台低占用。" />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a class="brand" href="index.html">
+      <img src="assets/logo.svg" alt="学习计划 Logo" />
+      <span>学习计划</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html" class="active">首页</a>
+      <a href="download.html">Download</a>
+      <a href="document.html">Document</a>
+      <a href="support.html">Support us</a>
+      <a class="nav-cta" href="download.html">免费下载</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <h1>把学习目标<span class="grad">交给桌面</span><br />每小时一次的<span class="grad">自律确认</span></h1>
+      <p class="lead">
+        「学习计划」常驻在你的 Windows 托盘里：到点用系统通知追问进度，
+        支持按小时定时询问，或按里程碑逐项打卡（例如「学完 Redis 的 string、hash」）。
+        免费、无广告、数据只存在你自己的电脑上。
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="download.html">立即下载</a>
+        <a class="btn btn-ghost btn-lg" href="document.html">查看使用文档</a>
+      </div>
+      <div class="hero-meta">
+        <span>Windows 10 / 11</span>
+        <span>免费开源</span>
+        <span>离线可用</span>
+        <span>开机自启</span>
+      </div>
+    </div>
+
+    <div class="mock-window" aria-hidden="true">
+      <div class="mock-titlebar">
+        <span class="mock-dot" style="background:#f87171"></span>
+        <span class="mock-dot" style="background:#fbbf24"></span>
+        <span class="mock-dot" style="background:#34d399"></span>
+        <span class="mock-title">学习计划</span>
+      </div>
+      <div class="mock-body">
+        <div class="mock-progress-row">
+          <span class="t">今日任务</span>
+          <span style="font-size:12px;color:#6b7280">今日完成 1/2（50%）</span>
+        </div>
+        <div class="mock-bar"><i></i></div>
+
+        <div class="mock-card">
+          <div class="row">
+            <span class="name">学习 Redis 数据类型</span>
+            <span class="mock-tag">定时询问</span>
+            <span class="mock-tag" style="background:#fff;color:#6b7280;border:1px solid #e5e7eb">每天</span>
+          </div>
+          <div class="sub">每 60 分钟询问一次 · 下次检查 21:00</div>
+        </div>
+
+        <div class="mock-card">
+          <div class="row">
+            <span class="name">学完 Redis 的 string 与 hash</span>
+            <span class="mock-tag green">里程碑</span>
+          </div>
+          <div class="sub">已完成 1/2 · 每日 21:00 核对</div>
+        </div>
+
+        <div class="mock-toast">
+          <div class="tt">学习 Redis 数据类型 · 该确认一下进度了</div>
+          <div class="acts"><i>已完成</i><i>还没完成</i><i>15 分钟后再问</i><i>立即学习</i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>为"坚持不下来"而生的功能</h2>
+      <p>不做花里胡哨的学习社交，只解决一件事：到点了，认真问自己一句——完成了吗？</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+        <h3>定时询问</h3>
+        <p>开始任务后按设定间隔（默认每小时）反复确认进度，答「还没完成」就继续追问，直到你真正做完。</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <h3>里程碑打卡</h3>
+        <p>把大目标拆成小目标逐项勾选，例如「看完 string 命令 → 学完 hash 与 zset」，全部完成才算结束。</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <h3>灵活重复规则</h3>
+        <p>每天、每周固定一天、每月固定日期，或自定义每周哪几天（一键选工作日）。非执行日安静不打扰。</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        </div>
+        <h3>学习链接直达</h3>
+        <p>给任务挂上教程或文档地址，提醒通知和确认卡片上会出现「立即学习」，点开直接进入学习页面。</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <h3>系统通知带按钮</h3>
+        <p>通过 Windows 原生通知中心提醒，通知上直接选择「已完成 / 还没完成 / 稍后再说」，不切窗口也能打卡。</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+        </div>
+        <h3>日历查看记录</h3>
+        <p>月历用颜色标出每一天的完成度（全部完成 / 部分完成 / 未完成），点选任意一天查看当天的检查流水。</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+        <h3>常驻低占用</h3>
+        <p>基于 .NET 8 WPF 原生开发，纯托盘驻留时私有内存约 20MB，不内嵌浏览器内核，可 7×24 小时后台运行。</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>数据本地存储</h3>
+        <p>任务与记录保存在本机 JSON 文件中，不登录、不上传、不联网收集任何个人信息，文件损坏会自动备份。</p>
+      </div>
+
+      <div class="feature">
+        <div class="icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+        </div>
+        <h3>开机自启</h3>
+        <p>一键开启登录后自动启动并静默驻留托盘，早上打开电脑，它已经在那里等你开始今天的计划。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <h2>三步开始你的自律计划</h2>
+      <p>下载即用，无需注册账号，第一次建立任务不超过一分钟。</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>下载并启动</h3>
+        <p>选择自包含版本（免装运行时）双击运行，应用以托盘图标方式常驻，关闭窗口也不会退出。</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>新建学习任务</h3>
+        <p>填写任务名，选择「定时询问」或「里程碑」检查方式，设置重复规则和询问间隔，可选挂上学习链接。</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>到点认真回答</h3>
+        <p>通知弹出时如实选择完成情况。没完成就继续被追问，完成后在日历里留下一个绿色的格子。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="cta-band">
+    <h2>今天的学习计划，从现在开始</h2>
+    <p>免费下载，永久离线可用。支持 Windows 10（1809 及以上）与 Windows 11。</p>
+    <a class="btn btn-primary btn-lg" href="download.html">前往下载页</a>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container footer-row">
+    <div>
+      <div style="font-weight:600;color:#374151;margin-bottom:6px;">学习计划 LearningReminder</div>
+      <div>常驻桌面的自律打卡提醒工具 · 数据完全本地存储</div>
+    </div>
+    <div>
+      <a href="index.html">首页</a>
+      <a href="download.html">Download</a>
+      <a href="document.html">Document</a>
+      <a href="support.html">Support us</a>
+      <a href="https://github.com/liiyunxi/learning-reminder" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,359 @@
+<Window x:Class="LearningReminder.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:LearningReminder.ViewModels"
+        xmlns:res="clr-namespace:LearningReminder.Resources"
+        Title="{x:Static res:AppStrings.MainWindowTitle}"
+        Width="960" Height="700"
+        MinWidth="860" MinHeight="580"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Brush.Page}"
+        FontFamily="Microsoft YaHei UI, Segoe UI"
+        TextOptions.TextFormattingMode="Display"
+        Foreground="{StaticResource Brush.Text}">
+
+    <!-- 自绘标题栏：与页面同色一体化，同时保留拖动、双击最大化、边缘缩放 -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="46" ResizeBorderThickness="6"
+                      CornerRadius="0" GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Border Background="{StaticResource Brush.Page}"
+            BorderBrush="{StaticResource Brush.Border}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="46" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- ===== 标题栏 ===== -->
+            <Grid Grid.Row="0">
+                <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{StaticResource AppLogo}" Width="22" Height="22" />
+                    <TextBlock Text="{x:Static res:AppStrings.MainWindowTitle}" Margin="10,0,0,0"
+                               VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,8,0">
+                    <Button Style="{StaticResource TitleBarButton}" ToolTip="最小化"
+                            WindowChrome.IsHitTestVisibleInChrome="True" Click="OnMinimizeClick">
+                        <Path Data="M 0,0 L 10,0" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="1.2" Width="10" Height="1" Stretch="Uniform" />
+                    </Button>
+                    <Button Style="{StaticResource TitleBarButton}" ToolTip="最大化 / 还原"
+                            WindowChrome.IsHitTestVisibleInChrome="True" Click="OnMaximizeClick">
+                        <Grid Width="10" Height="10">
+                            <Path x:Name="MaximizeIcon"
+                                  Data="M 0.5,0.5 L 9.5,0.5 L 9.5,9.5 L 0.5,9.5 Z"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  StrokeThickness="1.2" Fill="Transparent" />
+                            <Path x:Name="RestoreIcon" Visibility="Collapsed"
+                                  Data="M 3.5,0.5 L 9.5,0.5 L 9.5,6.5 M 0.5,3.5 L 6.5,3.5 L 6.5,9.5 L 0.5,9.5 Z"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                  StrokeThickness="1.2" Fill="Transparent" />
+                        </Grid>
+                    </Button>
+                    <Button Style="{StaticResource TitleBarCloseButton}" ToolTip="关闭（最小化到托盘）"
+                            WindowChrome.IsHitTestVisibleInChrome="True" Click="OnCloseClick">
+                        <Path Data="M 0,0 L 9,9 M 9,0 L 0,9"
+                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                              StrokeThickness="1.3" Width="9" Height="9" Stretch="Uniform" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- ===== 内容 ===== -->
+            <Grid Grid.Row="1" Margin="24,10,24,18">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- 顶部：日期与今日进度 -->
+                <Grid Grid.Row="0">
+                    <StackPanel>
+                        <TextBlock Text="{x:Static res:AppStrings.MainWindowTitle}" Style="{StaticResource Text.Title}" />
+                        <TextBlock x:Name="TodaySubtitle" Style="{StaticResource Text.Muted}" Margin="0,4,0,0" />
+                    </StackPanel>
+
+                    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Width="200">
+                        <TextBlock x:Name="ProgressText" Style="{StaticResource Text.Muted}" HorizontalAlignment="Right" />
+                        <ProgressBar x:Name="TodayProgress" Style="{StaticResource Progress.Rounded}"
+                                     Margin="0,8,0,0" Minimum="0" Maximum="100" Value="0" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- 待确认提醒条 -->
+                <Border x:Name="PendingBanner" Grid.Row="1" Visibility="Collapsed"
+                        Background="{StaticResource Brush.WarnSoft}" BorderBrush="#FDE68A"
+                        BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,14,0,0"
+                        Cursor="Hand" MouseLeftButtonUp="OnPendingBannerClick">
+                    <TextBlock x:Name="PendingBannerText" Foreground="#B45309" FontSize="13" />
+                </Border>
+
+                <!-- 主体：今日任务 / 记录 -->
+                <TabControl Grid.Row="2" Margin="0,14,0,0"
+                            Background="Transparent" BorderThickness="0" Padding="0">
+                    <TabControl.Resources>
+                        <Style TargetType="TabItem" BasedOn="{StaticResource Tab.Pill}" />
+                    </TabControl.Resources>
+
+                    <!-- ===== 今日任务 ===== -->
+                    <TabItem Header="{x:Static res:AppStrings.TabToday}">
+                        <Grid Margin="0,12,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                                <ItemsControl x:Name="TaskList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type vm:TaskCardViewModel}">
+                                            <Border Style="{StaticResource Card}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding Title}"
+                                                                       Style="{StaticResource Text.CardTitle}"
+                                                                       MaxWidth="360" VerticalAlignment="Center" />
+                                                            <Border Style="{StaticResource Chip}">
+                                                                <TextBlock Text="{Binding ModeText}" Style="{StaticResource Chip.Text}" />
+                                                            </Border>
+                                                            <Border Style="{StaticResource Chip}"
+                                                                    Background="{StaticResource Brush.Surface}"
+                                                                    BorderBrush="{StaticResource Brush.Border}"
+                                                                    BorderThickness="1">
+                                                                <TextBlock Text="{Binding RepeatLabel}" Style="{StaticResource Chip.Text}"
+                                                                           Foreground="{StaticResource Brush.Muted}" />
+                                                            </Border>
+                                                            <Border Style="{StaticResource Chip}"
+                                                                    Background="{StaticResource Brush.SuccessSoft}"
+                                                                    Visibility="{Binding HasStatus, Converter={StaticResource BoolToVisibility}}">
+                                                                <TextBlock Text="{Binding StatusText}" FontSize="11"
+                                                                           Foreground="{StaticResource Brush.Success}" />
+                                                            </Border>
+                                                        </StackPanel>
+
+                                                        <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
+                                                            <TextBlock Text="{Binding DetailText}" Style="{StaticResource Text.Muted}" />
+                                                            <TextBlock Text="{Binding CountdownText}" Style="{StaticResource Text.Muted}"
+                                                                       Foreground="{StaticResource Brush.Primary}"
+                                                                       Margin="14,0,0,0" />
+                                                        </StackPanel>
+
+                                                        <ItemsControl ItemsSource="{Binding Milestones}" Margin="0,12,0,0"
+                                                                      Visibility="{Binding ShowMilestones, Converter={StaticResource BoolToVisibility}}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox Style="{StaticResource CheckBox.Base}"
+                                                                              Content="{Binding Title}"
+                                                                              IsChecked="{Binding IsDone, Mode=TwoWay}"
+                                                                              Margin="0,3" />
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                                                        <Button Content="{x:Static res:AppStrings.ButtonOpenLink}"
+                                                                Style="{StaticResource Button.Ghost}" Margin="0,0,8,0"
+                                                                Visibility="{Binding HasLink, Converter={StaticResource BoolToVisibility}}"
+                                                                Click="OnOpenLinkClick" />
+                                                        <Button Content="{x:Static res:AppStrings.ButtonCheckNow}"
+                                                                Style="{StaticResource Button.Ghost}" Margin="0,0,8,0"
+                                                                Click="OnCheckNowClick" />
+                                                        <Button Content="{x:Static res:AppStrings.ButtonEdit}"
+                                                                Style="{StaticResource Button.Link}" Click="OnEditTaskClick" />
+                                                        <Button Content="{x:Static res:AppStrings.ButtonDelete}"
+                                                                Style="{StaticResource Button.Danger}" Click="OnDeleteTaskClick" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+
+                            <TextBlock x:Name="EmptyToday" Grid.Row="0"
+                                       Text="{x:Static res:AppStrings.LabelEmptyToday}"
+                                       Style="{StaticResource Text.Muted}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="Collapsed" />
+
+                            <!-- 今天不执行的任务，给个交代 -->
+                            <TextBlock x:Name="SkippedTodayText" Grid.Row="1"
+                                       Style="{StaticResource Text.Muted}"
+                                       Margin="2,10,0,0" TextWrapping="Wrap"
+                                       Visibility="Collapsed" />
+                        </Grid>
+                    </TabItem>
+
+                    <!-- ===== 记录：左日历 + 右列表 ===== -->
+                    <TabItem Header="{x:Static res:AppStrings.TabHistory}">
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="404" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 日历 -->
+                            <Border Grid.Column="0" Style="{StaticResource Card}" Padding="16,14" Margin="0,0,16,10">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                                        <TextBlock x:Name="CalendarMonthText" FontSize="14" FontWeight="SemiBold"
+                                                   VerticalAlignment="Center" />
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Style="{StaticResource TitleBarButton}" Width="32" Height="28"
+                                                    ToolTip="{x:Static res:AppStrings.CalendarPrevMonth}" Click="OnPrevMonthClick">
+                                                <Path Data="M 5,0 L 0,5 L 5,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                      StrokeThickness="1.3" Width="5" Height="10" Stretch="Uniform" />
+                                            </Button>
+                                            <Button Style="{StaticResource TitleBarButton}" Width="32" Height="28"
+                                                    ToolTip="{x:Static res:AppStrings.CalendarNextMonth}" Click="OnNextMonthClick">
+                                                <Path Data="M 0,0 L 5,5 L 0,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                      StrokeThickness="1.3" Width="5" Height="10" Stretch="Uniform" />
+                                            </Button>
+                                            <Button Content="{x:Static res:AppStrings.CalendarToday}"
+                                                    Style="{StaticResource Button.Link}" FontSize="12" Padding="8,4"
+                                                    Click="OnTodayClick" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- 星期表头 -->
+                                    <UniformGrid Grid.Row="1" Columns="7" Margin="0,0,0,4">
+                                        <TextBlock Text="{x:Static res:AppStrings.WeekdayMonday}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.WeekdayTuesday}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.WeekdayWednesday}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.WeekdayThursday}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.WeekdayFriday}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.WeekdaySaturday}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.WeekdaySunday}" Style="{StaticResource Text.Muted}" HorizontalAlignment="Center" />
+                                    </UniformGrid>
+
+                                    <!-- 日期格 -->
+                                    <ItemsControl Grid.Row="2" x:Name="CalendarDays">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <UniformGrid Columns="7" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type vm:CalendarDayViewModel}">
+                                                <Button Style="{StaticResource CalendarDay}"
+                                                        Background="{Binding DayBackground}"
+                                                        Foreground="{Binding DayForeground}"
+                                                        BorderBrush="{Binding DayBorder}"
+                                                        BorderThickness="{Binding DayBorderThickness}"
+                                                        ToolTip="{Binding TooltipText}"
+                                                        Click="OnCalendarDayClick">
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding DayText}" FontSize="12"
+                                                                   Foreground="{Binding DayForeground}"
+                                                                   HorizontalAlignment="Center" />
+                                                        <Ellipse Width="5" Height="5" Margin="0,4,0,0"
+                                                                 Fill="{Binding IndicatorBrush}"
+                                                                 HorizontalAlignment="Center"
+                                                                 Visibility="{Binding ShowIndicator, Converter={StaticResource BoolToVisibility}}" />
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- 图例 -->
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,0,0">
+                                        <Ellipse Width="6" Height="6" Fill="{StaticResource Brush.Success}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.CalendarLegendAllDone}" Style="{StaticResource Text.Muted}" Margin="6,0,14,0" />
+                                        <Ellipse Width="6" Height="6" Fill="{StaticResource Brush.Warn}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.CalendarLegendPartial}" Style="{StaticResource Text.Muted}" Margin="6,0,14,0" />
+                                        <Ellipse Width="6" Height="6" Fill="{StaticResource Brush.Border}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{x:Static res:AppStrings.CalendarLegendNone}" Style="{StaticResource Text.Muted}" Margin="6,0,0,0" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- 选中日期的记录 -->
+                            <Grid Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock x:Name="SelectedDayText" Style="{StaticResource Text.Section}"
+                                           Margin="2,0,0,8" />
+
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,6,0">
+                                    <ItemsControl x:Name="RecordList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type vm:RecordRowViewModel}">
+                                                <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,6">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="56" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="{Binding TimeText}"
+                                                                   Style="{StaticResource Text.Muted}" VerticalAlignment="Center" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding TaskTitle}"
+                                                                   FontSize="13" VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Grid.Column="2" Text="{Binding AnswerText}"
+                                                                   Style="{StaticResource Text.Muted}" VerticalAlignment="Center" />
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+
+                                <TextBlock x:Name="EmptyHistory" Grid.Row="1"
+                                           Text="{x:Static res:AppStrings.LabelEmptyHistory}"
+                                           Style="{StaticResource Text.Muted}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="Collapsed" />
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+
+                <!-- 底部操作栏 -->
+                <Grid Grid.Row="3" Margin="0,16,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="{x:Static res:AppStrings.ButtonNewTask}" Style="{StaticResource Button.Primary}"
+                                Click="OnNewTaskClick" />
+                        <Button Content="{x:Static res:AppStrings.ButtonCheckAll}" Style="{StaticResource Button.Ghost}"
+                                Margin="10,0,0,0" Click="OnCheckAllClick" />
+                        <Button Content="{x:Static res:AppStrings.ButtonHideToTray}" Style="{StaticResource Button.Link}"
+                                Margin="6,0,0,0" Click="OnHideToTrayClick" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock x:Name="DataPathText" Style="{StaticResource Text.Muted}"
+                                   Margin="0,0,16,0" VerticalAlignment="Center" />
+                        <CheckBox x:Name="AutoStartCheck" Content="{x:Static res:AppStrings.LabelAutoStart}"
+                                  Style="{StaticResource CheckBox.Base}"
+                                  Checked="OnAutoStartChanged" Unchecked="OnAutoStartChanged" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

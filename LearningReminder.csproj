@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- 指定 Windows 平台版本：系统通知（Toast）需要 Windows 运行时投影 -->
+    <TargetFramework>net8.0-windows10.0.18362.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <!-- 显式引用命名空间：WPF 与 WinForms 存在 Application/Button 等同名类型，关闭隐式 using 避免冲突 -->
+    <ImplicitUsings>disable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <!-- 托盘图标使用 WinForms 的 NotifyIcon，无需额外依赖 -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>LearningReminder</AssemblyName>
+    <RootNamespace>LearningReminder</RootNamespace>
+    <AssemblyTitle>学习计划</AssemblyTitle>
+    <Product>学习计划</Product>
+    <Version>0.1.0</Version>
+    <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
+    <!-- 常驻小工具：用工作站非并发 GC，减少后台 GC 线程与堆占用 -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Windows 系统通知（Toast），支持通知上的操作按钮 -->
+    <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="7.1.2" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+# 构建产物
+bin/
+obj/
+dist/
+artifacts/
+
+# IDE
+.vs/
+*.user
+*.suo
+
+# 预览/临时文件
+logo-preview-*.png
+*.tmp
+*.broken
+
+# 本地密钥（任何情况下都不入库）
+secrets/
+*.key

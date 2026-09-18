@@ -1,0 +1,70 @@
+<Window x:Class="LearningReminder.Views.CheckInWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="clr-namespace:LearningReminder.Resources"
+        Title="{x:Static res:AppStrings.CheckCardTitle}"
+        Width="410" SizeToContent="Height"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" ShowActivated="False" Topmost="True"
+        FontFamily="Microsoft YaHei UI, Segoe UI"
+        Foreground="{StaticResource Brush.Text}">
+
+    <!-- 外圈留白用于容纳投影 -->
+    <Border Margin="14" Background="{StaticResource Brush.Surface}"
+            BorderBrush="{StaticResource Brush.Border}" BorderThickness="1"
+            CornerRadius="14" Padding="18,16">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="18" ShadowDepth="2" Direction="270"
+                              Color="#111827" Opacity="0.16" />
+        </Border.Effect>
+
+        <StackPanel>
+            <!-- 标题行 -->
+            <Grid>
+                <TextBlock Text="{x:Static res:AppStrings.CheckCardTitle}" Style="{StaticResource Text.Muted}"
+                           FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button x:Name="CloseButton" Content="{x:Static res:AppStrings.ButtonClose}" Style="{StaticResource Button.Link}"
+                        HorizontalAlignment="Right" Padding="6,2" FontSize="11"
+                        Click="OnSnoozeClick" />
+            </Grid>
+
+            <TextBlock x:Name="TaskTitleText" Style="{StaticResource Text.CardTitle}"
+                       FontSize="16" Margin="0,8,0,0" TextWrapping="Wrap" />
+
+            <TextBlock x:Name="HintText" Style="{StaticResource Text.Muted}"
+                       Margin="0,6,0,0" TextWrapping="Wrap" />
+
+            <ItemsControl x:Name="MilestoneList" Margin="0,12,0,0" Visibility="Collapsed">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Style="{StaticResource CheckBox.Base}"
+                                  Content="{Binding Title}"
+                                  IsChecked="{Binding IsDone, Mode=TwoWay}"
+                                  Margin="0,3" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <TextBlock x:Name="ProgressText" Style="{StaticResource Text.Muted}"
+                       Margin="0,10,0,0" Visibility="Collapsed" />
+
+            <!-- 学习入口：任务填了链接时才显示 -->
+            <Button x:Name="LearnButton" Style="{StaticResource Button.Ghost}"
+                    Margin="0,14,0,0" Padding="14,9" Visibility="Collapsed"
+                    Click="OnLearnClick" />
+
+            <!-- 操作按钮 -->
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <Button x:Name="PrimaryButton" Style="{StaticResource Button.Success}"
+                        MinWidth="96" Click="OnPrimaryClick" />
+                <Button x:Name="SecondaryButton" Style="{StaticResource Button.Ghost}"
+                        MinWidth="96" Margin="8,0,0,0" Click="OnSecondaryClick" />
+                <Button x:Name="SnoozeButton" Style="{StaticResource Button.Link}"
+                        Margin="4,0,0,0" Click="OnSnoozeClick" />
+            </StackPanel>
+
+            <TextBlock x:Name="AutoCloseText" Style="{StaticResource Text.Muted}"
+                       Margin="0,12,0,0" />
+        </StackPanel>
+    </Border>
+</Window>
