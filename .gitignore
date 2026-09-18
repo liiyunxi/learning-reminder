@@ -4,6 +4,9 @@ obj/
 dist/
 artifacts/
 
+# 本地工具（部署用的 gh CLI 等）
+.tools/
+
 # IDE
 .vs/
 *.user
