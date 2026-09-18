@@ -372,7 +372,7 @@ a:hover { text-decoration: underline; }
 /* ---------- Support 页 ---------- */
 .support-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 .support-card {
-  background: var(--surface;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 28px 22px;
