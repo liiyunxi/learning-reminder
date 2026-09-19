@@ -692,8 +692,9 @@ code, kbd, samp {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 220px;
-  height: 220px;
+  width: 250px;
+  height: 250px;
+  max-width: 100%;
   margin: 0 auto 16px;
   padding: 12px;
   color: var(--muted);
@@ -710,7 +711,7 @@ code, kbd, samp {
   background-color: var(--surface);
   background-image: none;
 }
-.qr-slot img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.qr-slot img { width: 100%; height: 100%; object-fit: contain; image-rendering: auto; }
 .qr-fallback { display: none; margin: 0; }
 
 .support-card .hint { margin: 8px 0 0; color: var(--muted); }
