@@ -19,6 +19,7 @@ namespace LearningReminder.Services
 
         private NotifyIconHost? _tray;
         private DispatcherTimer? _cardDelayTimer;
+        private DispatcherTimer? _aggregateTimer;
         private SynchronizationContext? _uiContext;
         private bool _toastAvailable = true;
 
@@ -56,16 +57,68 @@ namespace LearningReminder.Services
 
         /// <summary>
         /// 提示一项待确认的检查。
+        /// 通知聚合：短时间内产生的多条待确认延迟合并成一条通知，避免通知轰炸。
         /// </summary>
         public void NotifyCheckIn(PendingCheckIn pending)
         {
-            bool toastShown = TryShowToast(pending);
+            _aggregateTimer?.Stop();
+            _aggregateTimer = new DispatcherTimer(DispatcherPriority.Normal)
+            {
+                Interval = TimeSpan.FromSeconds(AppConstants.NotificationAggregateSeconds)
+            };
+            _aggregateTimer.Tick += OnAggregateTick;
+            _aggregateTimer.Start();
+        }
+
+        /// <summary>聚合窗口结束：按当前待确认数量发单条通知或汇总通知。</summary>
+        private void OnAggregateTick(object? sender, EventArgs e)
+        {
+            _aggregateTimer?.Stop();
+            _aggregateTimer = null;
+
+            IReadOnlyList<PendingCheckIn> pending = CheckInService.Instance.Pending;
+            if (pending.Count == 0)
+            {
+                return;
+            }
+
+            bool toastShown = pending.Count == 1
+                ? TryShowToast(pending[0])
+                : TryShowSummaryToast(pending);
             if (!toastShown)
             {
-                ShowBalloon(pending);
+                ShowBalloon(pending[pending.Count - 1]);
             }
 
             ScheduleCardFallback();
+        }
+
+        /// <summary>多条待确认合并成一条汇总通知，点击后打开确认卡片处理。</summary>
+        private bool TryShowSummaryToast(IReadOnlyList<PendingCheckIn> pending)
+        {
+            if (!_toastAvailable)
+            {
+                return false;
+            }
+
+            try
+            {
+                // 打开最近一条待确认，其余可通过主界面横幅进入
+                PendingCheckIn newest = pending[pending.Count - 1];
+                new ToastContentBuilder()
+                    .AddArgument(ToastArgumentKeys.Action, ToastActions.Open)
+                    .AddArgument(ToastArgumentKeys.TaskId, newest.TaskId)
+                    .AddText(string.Format(AppStrings.ToastSummaryTitleFormat, pending.Count))
+                    .AddText(AppStrings.ToastSummaryBody)
+                    .Show();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _toastAvailable = false;
+                FileLogger.Error("显示汇总通知失败，改用托盘气泡", ex);
+                return false;
+            }
         }
 
         /// <summary>直接显示确认卡片（点击通知或托盘气泡、托盘菜单入口时调用）。</summary>
@@ -172,6 +225,12 @@ namespace LearningReminder.Services
             _cardDelayTimer.Tick += (sender, args) =>
             {
                 _cardDelayTimer?.Stop();
+
+                // 免打扰时段内不弹卡片；待确认项会按超时规则自动推迟
+                if (QuietHours.IsQuiet(DateTime.Now))
+                {
+                    return;
+                }
 
                 // 到点时仍未应答的，全部弹确认卡片（避免通知被忽略后无处可点）
                 foreach (PendingCheckIn item in CheckInService.Instance.Pending)

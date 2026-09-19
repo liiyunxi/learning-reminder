@@ -15,7 +15,7 @@
     <RootNamespace>LearningReminder</RootNamespace>
     <AssemblyTitle>学习计划</AssemblyTitle>
     <Product>学习计划</Product>
-    <Version>0.1.0</Version>
+    <Version>0.3.0</Version>
     <SatelliteResourceLanguages>zh-Hans</SatelliteResourceLanguages>
     <!-- 常驻小工具：用工作站非并发 GC，减少后台 GC 线程与堆占用 -->
     <ServerGarbageCollection>false</ServerGarbageCollection>
@@ -26,6 +26,14 @@
   <ItemGroup>
     <!-- Windows 系统通知（Toast），支持通知上的操作按钮 -->
     <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="7.1.2" />
+    <!-- 数据文件本地加密（DPAPI，仅当前 Windows 账户可解密） -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 像素字体与 logo：嵌入为资源，随应用分发 -->
+    <Resource Include="Fonts\fusion-pixel-12px-proportional-zh_hans.ttf" />
+    <Resource Include="Assets\logo-64.png" />
   </ItemGroup>
 
 </Project>

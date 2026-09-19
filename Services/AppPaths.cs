@@ -25,6 +25,17 @@ namespace LearningReminder.Services
         /// <summary>主数据文件路径</summary>
         public static string DataFile => Path.Combine(DataDirectory, AppConstants.DataFileName);
 
+        /// <summary>备份目录：%AppData%\LearningReminder\backups</summary>
+        public static string BackupDirectory
+        {
+            get
+            {
+                string dir = Path.Combine(DataDirectory, AppConstants.BackupFolderName);
+                Directory.CreateDirectory(dir);
+                return dir;
+            }
+        }
+
         /// <summary>错误日志文件路径</summary>
         public static string LogFile => Path.Combine(DataDirectory, AppConstants.LogFileName);
     }

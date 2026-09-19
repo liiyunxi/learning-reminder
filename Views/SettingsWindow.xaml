@@ -1,0 +1,146 @@
+<Window x:Class="LearningReminder.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:res="clr-namespace:LearningReminder.Resources"
+        Title="{x:Static res:AppStrings.SettingsWindowTitle}"
+        Width="600" SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource Brush.Page}"
+        FontFamily="{StaticResource Font.App}"
+        TextOptions.TextRenderingMode="Aliased"
+        Foreground="{StaticResource Brush.Text}">
+
+    <!-- 自绘标题栏：与主界面一致的像素样式 -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="46" ResizeBorderThickness="0"
+                      CornerRadius="0" GlassFrameThickness="0"
+                      UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Border BorderBrush="{StaticResource Brush.Border}" BorderThickness="2">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="46" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- ===== 标题栏 ===== -->
+            <Grid Grid.Row="0" Background="{StaticResource Brush.Page}">
+                <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{StaticResource AppLogo}" Width="20" Height="20"
+                           RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                    <TextBlock x:Name="TitleBarText" Margin="10,0,0,0" VerticalAlignment="Center"
+                               FontSize="12" Text="{x:Static res:AppStrings.SettingsWindowTitle}" />
+                </StackPanel>
+
+                <Button Style="{StaticResource TitleBarCloseButton}"
+                        HorizontalAlignment="Right" Margin="0,0,8,0"
+                        WindowChrome.IsHitTestVisibleInChrome="True"
+                        Click="OnCancelClick">
+                    <Path Data="M 0,0 L 9,9 M 9,0 L 0,9" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                          StrokeThickness="1.6" Width="9" Height="9" Stretch="Uniform" />
+                </Button>
+            </Grid>
+
+            <!-- ===== 内容 ===== -->
+            <StackPanel Grid.Row="1" Margin="24,2,24,20">
+
+                <!-- 提醒 -->
+                <TextBlock Text="{x:Static res:AppStrings.SectionReminder}" Style="{StaticResource Text.Section}" />
+                <Border Style="{StaticResource Card}" Padding="16,14">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox x:Name="DndCheck" Content="{x:Static res:AppStrings.LabelDnd}"
+                                      Style="{StaticResource CheckBox.Base}" VerticalAlignment="Center"
+                                      Checked="OnDndChanged" Unchecked="OnDndChanged" />
+                            <TextBox x:Name="DndStartBox" Style="{StaticResource TextBox.Base}" Width="86" Margin="16,0,0,0" />
+                            <TextBlock Text="{x:Static res:AppStrings.LabelDndRange}" Style="{StaticResource Text.Muted}"
+                                       Margin="10,0,10,0" VerticalAlignment="Center" />
+                            <TextBox x:Name="DndEndBox" Style="{StaticResource TextBox.Base}" Width="86" />
+                        </StackPanel>
+                        <TextBlock Text="{x:Static res:AppStrings.DndHint}" Style="{StaticResource Text.Muted}"
+                                   Margin="0,8,0,0" TextWrapping="Wrap" />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                            <TextBlock Text="{x:Static res:AppStrings.LabelSnoozeMinutes}" Style="{StaticResource Text.Muted}"
+                                       VerticalAlignment="Center" />
+                            <TextBox x:Name="SnoozeBox" Style="{StaticResource TextBox.Base}" Width="86" Margin="14,0,0,0" />
+                            <TextBlock Text="{x:Static res:AppStrings.LabelDefaultInterval}" Style="{StaticResource Text.Muted}"
+                                       VerticalAlignment="Center" Margin="28,0,0,0" />
+                            <TextBox x:Name="IntervalBox" Style="{StaticResource TextBox.Base}" Width="86" Margin="14,0,0,0" />
+                        </StackPanel>
+
+                        <CheckBox x:Name="AutoCardCheck" Content="{x:Static res:AppStrings.LabelAutoShowCard}"
+                                  Style="{StaticResource CheckBox.Base}" Margin="0,14,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 目标 -->
+                <TextBlock Text="{x:Static res:AppStrings.SectionGoal}" Style="{StaticResource Text.Section}" Margin="0,8,0,0" />
+                <Border Style="{StaticResource Card}" Padding="16,14">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{x:Static res:AppStrings.LabelDailyGoal}" Style="{StaticResource Text.Muted}"
+                                   VerticalAlignment="Center" />
+                        <TextBox x:Name="GoalBox" Style="{StaticResource TextBox.Base}" Width="86" Margin="14,0,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 数据与隐私 -->
+                <TextBlock Text="{x:Static res:AppStrings.SectionDataPrivacy}" Style="{StaticResource Text.Section}" Margin="0,8,0,0" />
+                <Border Style="{StaticResource Card}" Padding="16,14">
+                    <StackPanel>
+                        <CheckBox x:Name="EncryptCheck" Content="{x:Static res:AppStrings.LabelEncryptData}"
+                                  Style="{StaticResource CheckBox.Base}" />
+                        <TextBlock x:Name="BackupHintText" Style="{StaticResource Text.Muted}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                        <TextBlock x:Name="DataDirText" Style="{StaticResource Text.Muted}" Margin="0,4,0,0" TextWrapping="Wrap" />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                            <Button Content="{x:Static res:AppStrings.ButtonOpenDataDir}" Style="{StaticResource Button.Ghost}"
+                                    Padding="10,5" Click="OnOpenDataDirClick" />
+                            <Button Content="{x:Static res:AppStrings.ButtonBackupNow}" Style="{StaticResource Button.Ghost}"
+                                    Padding="10,5" Margin="10,0,0,0" Click="OnBackupNowClick" />
+                            <Button Content="{x:Static res:AppStrings.ButtonExportData}" Style="{StaticResource Button.Ghost}"
+                                    Padding="10,5" Margin="10,0,0,0" Click="OnExportClick" />
+                            <Button Content="{x:Static res:AppStrings.ButtonImportData}" Style="{StaticResource Button.Ghost}"
+                                    Padding="10,5" Margin="10,0,0,0" Click="OnImportClick" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 关于 -->
+                <TextBlock Text="{x:Static res:AppStrings.SectionAbout}" Style="{StaticResource Text.Section}" Margin="0,8,0,0" />
+                <Border Style="{StaticResource Card}" Padding="16,14">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="VersionText" FontSize="12" VerticalAlignment="Center" />
+                            <Button Content="{x:Static res:AppStrings.ButtonCheckUpdate}" Style="{StaticResource Button.Link}"
+                                    Margin="14,0,0,0" Click="OnCheckUpdateClick" />
+                            <Button x:Name="DownloadLinkButton" Content="{x:Static res:AppStrings.ButtonGoDownload}"
+                                    Style="{StaticResource Button.Link}" Margin="8,0,0,0" Visibility="Collapsed"
+                                    Click="OnGoDownloadClick" />
+                        </StackPanel>
+                        <TextBlock x:Name="UpdateStatusText" Style="{StaticResource Text.Muted}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                        <CheckBox x:Name="CheckUpdateOnStartCheck" Content="{x:Static res:AppStrings.LabelCheckUpdateOnStart}"
+                                  Style="{StaticResource CheckBox.Base}" Margin="0,10,0,0" />
+                        <TextBlock Text="{x:Static res:AppStrings.HotkeyHint}" Style="{StaticResource Text.Muted}"
+                                   Margin="0,10,0,0" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 校验提示 -->
+                <TextBlock x:Name="ErrorText" Foreground="{StaticResource Brush.Danger}"
+                           FontSize="12" Margin="0,14,0,0" TextWrapping="Wrap" Visibility="Collapsed" />
+
+                <!-- 操作按钮 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                    <Button Content="{x:Static res:AppStrings.ButtonCancel}" Style="{StaticResource Button.Ghost}"
+                            MinWidth="84" Click="OnCancelClick" />
+                    <Button Content="{x:Static res:AppStrings.ButtonSave}" Style="{StaticResource Button.Primary}"
+                            MinWidth="84" Margin="12,0,0,0" Click="OnSaveClick" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

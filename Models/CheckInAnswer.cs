@@ -18,6 +18,9 @@ namespace LearningReminder.Models
         AutoSnoozed = 3,
 
         /// <summary>里程碑模式下更新了部分进度</summary>
-        Partial = 4
+        Partial = 4,
+
+        /// <summary>补打卡：事后把过去某天补记为完成</summary>
+        Backfill = 5
     }
 }

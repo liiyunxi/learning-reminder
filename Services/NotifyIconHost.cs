@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using LearningReminder.Resources;
@@ -10,6 +11,8 @@ namespace LearningReminder.Services
     /// </summary>
     public sealed class NotifyIconHost : IDisposable
     {
+        private readonly List<ToolStripItem> _overviewItems = new List<ToolStripItem>();
+
         private bool _disposed;
 
         /// <summary>构造托盘图标与右键菜单。</summary>
@@ -93,6 +96,43 @@ namespace LearningReminder.Services
         public void ShowBalloon(string title, string text)
         {
             Tray.ShowBalloonTip(10000, title, text, ToolTipIcon.Info);
+        }
+
+        /// <summary>
+        /// 更新菜单顶部的"今日状态总览"：一行摘要 + 各任务完成状态。
+        /// 每次整段重建，任务数量级很小，开销可忽略。
+        /// </summary>
+        public void UpdateOverview(string summary, IReadOnlyList<string> taskLines)
+        {
+            foreach (ToolStripItem item in _overviewItems)
+            {
+                TrayMenu.Items.Remove(item);
+                item.Dispose();
+            }
+
+            _overviewItems.Clear();
+
+            int insertAt = 0;
+            ToolStripMenuItem summaryItem = new ToolStripMenuItem(summary)
+            {
+                Enabled = false
+            };
+            TrayMenu.Items.Insert(insertAt++, summaryItem);
+            _overviewItems.Add(summaryItem);
+
+            foreach (string line in taskLines)
+            {
+                ToolStripMenuItem taskItem = new ToolStripMenuItem(line)
+                {
+                    Enabled = false
+                };
+                TrayMenu.Items.Insert(insertAt++, taskItem);
+                _overviewItems.Add(taskItem);
+            }
+
+            ToolStripSeparator separator = new ToolStripSeparator();
+            TrayMenu.Items.Insert(insertAt, separator);
+            _overviewItems.Add(separator);
         }
 
         private void OnMouseClick(object? sender, MouseEventArgs e)

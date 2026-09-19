@@ -18,6 +18,9 @@ namespace LearningReminder.Models
         /// <summary>学习链接（可选），到点提醒时可一键打开</summary>
         public string LinkUrl { get; set; } = string.Empty;
 
+        /// <summary>分组标签（可选），用于主界面按分组筛选</summary>
+        public string Tag { get; set; } = string.Empty;
+
         /// <summary>检查方式</summary>
         public CheckMode Mode { get; set; } = CheckMode.Interval;
 

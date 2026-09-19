@@ -12,34 +12,34 @@ namespace LearningReminder.Resources
         public static Brush Primary => Find("Brush.Primary", "#4F46E5");
 
         /// <summary>主色浅底</summary>
-        public static Brush PrimarySoft => Find("Brush.PrimarySoft", "#EEF2FF");
+        public static Brush PrimarySoft => Find("Brush.PrimarySoft", "#E4E4FF");
 
         /// <summary>成功色</summary>
         public static Brush Success => Find("Brush.Success", "#10B981");
 
         /// <summary>成功浅底</summary>
-        public static Brush SuccessSoft => Find("Brush.SuccessSoft", "#ECFDF5");
+        public static Brush SuccessSoft => Find("Brush.SuccessSoft", "#D9F7EC");
 
         /// <summary>提醒色</summary>
         public static Brush Warn => Find("Brush.Warn", "#F59E0B");
 
         /// <summary>提醒浅底</summary>
-        public static Brush WarnSoft => Find("Brush.WarnSoft", "#FFF7ED");
+        public static Brush WarnSoft => Find("Brush.WarnSoft", "#FDEBC8");
 
         /// <summary>卡片底色</summary>
         public static Brush Surface => Find("Brush.Surface", "#FFFFFF");
 
         /// <summary>次要文字色</summary>
-        public static Brush Muted => Find("Brush.Muted", "#6B7280");
+        public static Brush Muted => Find("Brush.Muted", "#5B5B73");
 
         /// <summary>正文色</summary>
-        public static Brush Text => Find("Brush.Text", "#111827");
+        public static Brush Text => Find("Brush.Text", "#1F2033");
 
         /// <summary>边框色</summary>
-        public static Brush Border => Find("Brush.Border", "#E5E7EB");
+        public static Brush Border => Find("Brush.Border", "#1F2033");
 
         /// <summary>空白格文字色</summary>
-        public static Brush Disabled => Find("Brush.Disabled", "#C7CBD1");
+        public static Brush Disabled => Find("Brush.Disabled", "#B9B7AC");
 
         private static Brush Find(string key, string fallback)
         {

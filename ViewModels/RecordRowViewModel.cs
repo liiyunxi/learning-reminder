@@ -48,6 +48,8 @@ namespace LearningReminder.ViewModels
                     return AppStrings.LogAnswerAutoSnoozed;
                 case CheckInAnswer.Partial:
                     return string.IsNullOrEmpty(entry.Detail) ? AppStrings.LogAnswerNotYet : entry.Detail;
+                case CheckInAnswer.Backfill:
+                    return AppStrings.LogAnswerBackfill;
                 default:
                     return string.Empty;
             }

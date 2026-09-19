@@ -40,15 +40,27 @@ namespace LearningReminder.Services
             }
 
             DateTime dayStart = now.Date.AddHours(AppConstants.DayStartHour);
-            DateTime candidate = dayStart.AddMinutes(NormalizeInterval(task.IntervalMinutes));
-            progress.NextCheckAt = candidate > now ? candidate : now.AddMinutes(NormalizeInterval(task.IntervalMinutes));
+            DateTime candidate = dayStart.AddMinutes(EffectiveInterval(task, progress));
+            progress.NextCheckAt = candidate > now ? candidate : now.AddMinutes(EffectiveInterval(task, progress));
         }
 
-        /// <summary>应答之后重新排期：继续追问则按间隔顺延。</summary>
+        /// <summary>应答之后重新排期：继续追问则按有效间隔顺延。</summary>
         public static void ApplyRepeat(LearningTask task, TaskProgress progress, DateTime now)
         {
-            progress.NextCheckAt = now.AddMinutes(NormalizeInterval(task.IntervalMinutes));
+            progress.NextCheckAt = now.AddMinutes(EffectiveInterval(task, progress));
             progress.SnoozeUntil = null;
+        }
+
+        /// <summary>
+        /// 有效询问间隔（间隔自适应）：连续"还没完成"时逐步放缓（×1.5、×2），
+        /// 避免越问越频繁造成打扰，最长不超过 24 小时。
+        /// </summary>
+        public static int EffectiveInterval(LearningTask task, TaskProgress progress)
+        {
+            int baseMinutes = NormalizeInterval(task.IntervalMinutes);
+            double factor = progress.NotYetStreak >= 2 ? 2.0 : (progress.NotYetStreak == 1 ? 1.5 : 1.0);
+            int minutes = (int)Math.Round(baseMinutes * factor);
+            return minutes > AppConstants.MaxIntervalMinutes ? AppConstants.MaxIntervalMinutes : minutes;
         }
 
         /// <summary>推迟到指定分钟数之后再问。</summary>
@@ -72,6 +84,12 @@ namespace LearningReminder.Services
         public static bool IsDue(LearningTask task, TaskProgress progress, DateTime now)
         {
             if (!task.Enabled || !task.ShouldRunOn(now.Date) || IsTaskFinished(task, progress))
+            {
+                return false;
+            }
+
+            // 免打扰时段内不打扰：到点的排期直接跳过（不补发）
+            if (QuietHours.IsQuiet(now))
             {
                 return false;
             }

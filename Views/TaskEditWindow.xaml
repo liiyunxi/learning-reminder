@@ -8,7 +8,8 @@
         WindowStyle="None"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource Brush.Page}"
-        FontFamily="Microsoft YaHei UI, Segoe UI"
+        FontFamily="{StaticResource Font.App}"
+        TextOptions.TextRenderingMode="Aliased"
         Foreground="{StaticResource Brush.Text}">
 
     <!-- 自绘标题栏：内容与主题一致，同时保留系统拖动与投影 -->
@@ -46,6 +47,15 @@
             <!-- ===== 表单 ===== -->
             <StackPanel Grid.Row="1" Margin="24,2,24,20">
 
+                <!-- 从模板新建 -->
+                <Grid Margin="0,0,0,4">
+                    <TextBlock Text="{x:Static res:AppStrings.LabelTemplateSection}"
+                               Style="{StaticResource Text.FieldLabel}" VerticalAlignment="Center" />
+                    <Button Content="{x:Static res:AppStrings.ButtonSaveAsTemplate}" Style="{StaticResource Button.Link}"
+                            HorizontalAlignment="Right" Click="OnSaveTemplateClick" />
+                </Grid>
+                <WrapPanel x:Name="TemplatePanel" Margin="0,0,0,2" />
+
                 <!-- 任务名称 -->
                 <TextBlock Text="{x:Static res:AppStrings.FieldTitle}" Style="{StaticResource Text.FieldLabel}" />
                 <TextBox x:Name="TitleBox" Style="{StaticResource TextBox.Base}" />
@@ -56,6 +66,12 @@
                 <TextBlock Text="{x:Static res:AppStrings.FieldLink}" Style="{StaticResource Text.FieldLabel}" Margin="0,14,0,6" />
                 <TextBox x:Name="LinkBox" Style="{StaticResource TextBox.Base}" />
                 <TextBlock Text="{x:Static res:AppStrings.FieldLinkHint}" Style="{StaticResource Text.Muted}"
+                           Margin="2,6,0,0" TextWrapping="Wrap" />
+
+                <!-- 分组标签 -->
+                <TextBlock Text="{x:Static res:AppStrings.FieldTag}" Style="{StaticResource Text.FieldLabel}" Margin="0,14,0,6" />
+                <TextBox x:Name="TagBox" Style="{StaticResource TextBox.Base}" />
+                <TextBlock Text="{x:Static res:AppStrings.FieldTagHint}" Style="{StaticResource Text.Muted}"
                            Margin="2,6,0,0" TextWrapping="Wrap" />
 
                 <!-- 重复 -->

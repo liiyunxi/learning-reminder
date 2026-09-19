@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,6 +18,7 @@ namespace LearningReminder
         private SingleInstanceService? _singleInstance;
         private NotifyIconHost? _tray;
         private SchedulerService? _scheduler;
+        private HotkeyService? _hotkeys;
         private MainWindow? _mainWindow;
         private bool _exiting;
 
@@ -39,6 +41,8 @@ namespace LearningReminder
             _singleInstance.StartListening();
 
             DataStore.Instance.Load();
+            DataStore.Instance.CreateDailyBackup(DateTime.Now);
+            DataStore.Instance.DayRolledOver += (sender, args) => DataStore.Instance.CreateDailyBackup(DateTime.Now);
 
             _tray = new NotifyIconHost();
             SyncAutoStartSetting();
@@ -54,8 +58,14 @@ namespace LearningReminder
 
             _scheduler.Start();
 
+            // 全局快捷键：Ctrl+Alt+L 打开主界面，Ctrl+Alt+K 立即检查全部
+            _hotkeys = new HotkeyService();
+            _hotkeys.OpenRequested += (sender, args) => ShowMainWindow();
+            _hotkeys.CheckAllRequested += (sender, args) => RaiseAllChecks();
+
             // 先把托盘图标与提示刷新到位，避免出现"进程在跑但托盘里看不到"的情况
             RefreshTrayState();
+            ScheduleUpdateCheck();
 
             if (AppStartupOptions.IsMinimizedStart(e.Args))
             {
@@ -80,10 +90,17 @@ namespace LearningReminder
         protected override void OnExit(ExitEventArgs e)
         {
             DataStore.Instance.Save();
+            _hotkeys?.Dispose();
             _singleInstance?.Dispose();
             FileLogger.Info("应用退出");
             base.OnExit(e);
         }
+
+        /// <summary>发现新版本（只提示一次）</summary>
+        public event EventHandler<UpdateInfo>? UpdateFound;
+
+        /// <summary>当前已发现的新版本；未发现为 null</summary>
+        public UpdateInfo? UpdateInfo { get; private set; }
 
         /// <summary>调度器（主界面订阅其心跳来刷新倒计时）。</summary>
         public SchedulerService? Scheduler => _scheduler;
@@ -249,6 +266,84 @@ namespace LearningReminder
                 AppConstants.AppName,
                 done,
                 total));
+            UpdateTrayOverview();
+        }
+
+        /// <summary>更新托盘菜单里的"今日状态总览"：一行摘要 + 各任务完成状态。</summary>
+        private void UpdateTrayOverview()
+        {
+            if (_tray == null)
+            {
+                return;
+            }
+
+            DateTime today = DateTime.Today;
+            int done = 0;
+            int total = 0;
+            List<string> lines = new List<string>();
+            foreach (Models.LearningTask task in DataStore.Instance.Data.Tasks)
+            {
+                if (!task.Enabled || !task.ShouldRunOn(today) || task.CreatedAt.Date > today)
+                {
+                    continue;
+                }
+
+                total++;
+                Models.TaskProgress progress = DataStore.Instance.Today.GetOrCreate(task.Id);
+                bool finished = SchedulePlanner.IsTaskFinished(task, progress);
+                if (finished)
+                {
+                    done++;
+                }
+
+                if (lines.Count < 10)
+                {
+                    lines.Add(
+                        (finished ? AppStrings.TrayOverviewItemDonePrefix : AppStrings.TrayOverviewItemTodoPrefix)
+                        + task.Title);
+                }
+            }
+
+            _tray.UpdateOverview(string.Format(AppStrings.TrayOverviewFormat, done, total), lines);
+        }
+
+        /// <summary>启动后台的版本检查（延迟执行，失败静默）。</summary>
+        private void ScheduleUpdateCheck()
+        {
+            if (!DataStore.Instance.Data.Settings.CheckUpdateOnStart)
+            {
+                return;
+            }
+
+            DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Background)
+            {
+                Interval = TimeSpan.FromSeconds(AppConstants.UpdateCheckDelaySeconds)
+            };
+            timer.Tick += async (sender, args) =>
+            {
+                timer.Stop();
+                await CheckUpdateAsync();
+            };
+            timer.Start();
+        }
+
+        /// <summary>检查新版本；发现后只提示一次。</summary>
+        private async Task CheckUpdateAsync()
+        {
+            if (UpdateInfo != null)
+            {
+                return;
+            }
+
+            UpdateInfo? info = await UpdateService.CheckAsync();
+            if (info == null || !UpdateService.IsNewer(info.Version, UpdateService.CurrentVersion))
+            {
+                return;
+            }
+
+            UpdateInfo = info;
+            FileLogger.Info("发现新版本：" + info.Version);
+            UpdateFound?.Invoke(this, info);
         }
 
         /// <summary>统计今日完成情况。</summary>

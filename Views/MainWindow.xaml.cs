@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using LearningReminder.Models;
 using LearningReminder.Resources;
@@ -26,9 +27,20 @@ namespace LearningReminder.Views
         private readonly ObservableCollection<CalendarDayViewModel> _calendarDays =
             new ObservableCollection<CalendarDayViewModel>();
 
+        private readonly ObservableCollection<BackfillRowViewModel> _dayTasks =
+            new ObservableCollection<BackfillRowViewModel>();
+
+        private readonly ObservableCollection<TrendBarViewModel> _trendBars =
+            new ObservableCollection<TrendBarViewModel>();
+
+        private readonly ObservableCollection<Achievement> _achievements =
+            new ObservableCollection<Achievement>();
+
         private DateTime _displayMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         private DateTime _selectedDate = DateTime.Today;
         private bool _suppressEvents = true;
+        private string _activeTag = string.Empty;
+        private bool _buildingTagFilters;
 
         /// <summary>构造主窗口。</summary>
         public MainWindow()
@@ -38,6 +50,9 @@ namespace LearningReminder.Views
             TaskList.ItemsSource = _taskCards;
             RecordList.ItemsSource = _records;
             CalendarDays.ItemsSource = _calendarDays;
+            DayTaskList.ItemsSource = _dayTasks;
+            TrendBars.ItemsSource = _trendBars;
+            AchievementList.ItemsSource = _achievements;
             DataPathText.Text = string.Format(AppStrings.DataPathLabelFormat, AppPaths.DataDirectory);
 
             Loaded += OnWindowLoaded;
@@ -87,8 +102,21 @@ namespace LearningReminder.Views
             SyncTaskList(forceRebuild: true);
             SyncRecords();
             UpdateHeader();
-            UpdateBanner();
+            UpdatePendingBanner();
             SyncAutoStartCheck();
+            BuildTagFilters();
+            RefreshStats();
+
+            if (Host?.UpdateInfo is UpdateInfo info)
+            {
+                ShowUpdate(info);
+            }
+
+            if (Host != null)
+            {
+                Host.UpdateFound += OnUpdateFound;
+            }
+
             _suppressEvents = false;
         }
 
@@ -97,6 +125,11 @@ namespace LearningReminder.Views
             DataStore.Instance.Changed -= OnDataChanged;
             DataStore.Instance.DayRolledOver -= OnDayRolledOver;
             CheckInService.Instance.PendingChanged -= OnPendingChanged;
+
+            if (Host != null)
+            {
+                Host.UpdateFound -= OnUpdateFound;
+            }
 
             SchedulerService? scheduler = Host?.Scheduler;
             if (scheduler != null)
@@ -128,11 +161,13 @@ namespace LearningReminder.Views
 
         private void OnDataChanged(object? sender, EventArgs e)
         {
+            BuildTagFilters();
             SyncTaskList(forceRebuild: false);
             RefreshCalendarStats();
             SyncRecords();
             UpdateHeader();
-            UpdateBanner();
+            UpdatePendingBanner();
+            RefreshStats();
         }
 
         private void OnDayRolledOver(object? sender, EventArgs e)
@@ -140,14 +175,16 @@ namespace LearningReminder.Views
             _selectedDate = DateTime.Today;
             _displayMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             BuildCalendar();
+            BuildTagFilters();
             SyncTaskList(forceRebuild: true);
             SyncRecords();
             UpdateHeader();
+            RefreshStats();
         }
 
         private void OnPendingChanged(object? sender, EventArgs e)
         {
-            UpdateBanner();
+            UpdatePendingBanner();
         }
 
         private void OnSchedulerTicked(object? sender, EventArgs e)
@@ -170,6 +207,13 @@ namespace LearningReminder.Views
 
             foreach (LearningTask task in DataStore.Instance.Data.Tasks)
             {
+                if (_activeTag.Length > 0
+                    && !string.Equals(task.Tag?.Trim() ?? string.Empty, _activeTag, StringComparison.Ordinal))
+                {
+                    // 与当前分组筛选不符的任务不展示
+                    continue;
+                }
+
                 // 今天不执行的任务不进今日清单，只在底部说明
                 if (task.ShouldRunOn(today))
                 {
@@ -210,6 +254,9 @@ namespace LearningReminder.Views
                 }
             }
 
+            EmptyToday.Text = _activeTag.Length == 0
+                ? AppStrings.LabelEmptyToday
+                : string.Format(AppStrings.LabelEmptyTaggedFormat, _activeTag);
             EmptyToday.Visibility = _taskCards.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             UpdateSkippedHint(skipped);
         }
@@ -249,6 +296,172 @@ namespace LearningReminder.Views
                 _selectedDate.ToString(AppConstants.LongDateFormat, culture));
 
             EmptyHistory.Visibility = _records.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            SyncDayTasks();
+        }
+
+        /// <summary>刷新"当天任务"列表：过去日期提供补打卡入口。</summary>
+        private void SyncDayTasks()
+        {
+            _dayTasks.Clear();
+
+            DateTime day = _selectedDate.Date;
+            bool canBackfillDay = day < DateTime.Today;
+            string dateKey = day.ToString(AppConstants.DateFormat);
+            DailyRecord? record = DataStore.Instance.FindRecord(dateKey);
+
+            foreach (LearningTask task in DataStore.Instance.Data.Tasks)
+            {
+                if (!task.Enabled || task.CreatedAt.Date > day || !task.ShouldRunOn(day))
+                {
+                    continue;
+                }
+
+                TaskProgress? progress = record?.Find(task.Id);
+                bool completed = progress?.IsCompleted == true;
+                _dayTasks.Add(new BackfillRowViewModel(task.Id, task.Title, completed, canBackfillDay && !completed));
+            }
+
+            DayTaskPanel.Visibility = _dayTasks.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        /// <summary>按当前任务动态生成分组筛选按钮（"全部" + 各分组）。</summary>
+        private void BuildTagFilters()
+        {
+            _buildingTagFilters = true;
+            try
+            {
+                TagFilterPanel.Children.Clear();
+
+                List<string> tags = new List<string>();
+                foreach (LearningTask task in DataStore.Instance.Data.Tasks)
+                {
+                    string tag = task.Tag?.Trim() ?? string.Empty;
+                    if (tag.Length > 0 && !tags.Contains(tag))
+                    {
+                        tags.Add(tag);
+                    }
+                }
+
+                tags.Sort(StringComparer.CurrentCulture);
+
+                if (_activeTag.Length > 0 && !tags.Contains(_activeTag))
+                {
+                    // 当前筛选的分组已不存在，回到"全部"
+                    _activeTag = string.Empty;
+                }
+
+                AddTagFilterButton(AppStrings.TagFilterAll, string.Empty, _activeTag.Length == 0);
+                foreach (string tag in tags)
+                {
+                    AddTagFilterButton(tag, tag, string.Equals(_activeTag, tag, StringComparison.Ordinal));
+                }
+
+                TagFilterPanel.Visibility = tags.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+            }
+            finally
+            {
+                _buildingTagFilters = false;
+            }
+        }
+
+        private void AddTagFilterButton(string text, string tag, bool selected)
+        {
+            RadioButton button = new RadioButton
+            {
+                Content = text,
+                GroupName = "TagFilter",
+                IsChecked = selected,
+                Style = (Style)FindResource("Pill.Radio"),
+                Tag = tag
+            };
+            button.Checked += OnTagFilterChecked;
+            TagFilterPanel.Children.Add(button);
+        }
+
+        private void OnTagFilterChecked(object sender, RoutedEventArgs e)
+        {
+            if (_buildingTagFilters)
+            {
+                return;
+            }
+
+            if ((sender as FrameworkElement)?.Tag is not string tag || _activeTag == tag)
+            {
+                return;
+            }
+
+            _activeTag = tag;
+            SyncTaskList(forceRebuild: true);
+        }
+
+        /// <summary>刷新统计页：连续天数、每日目标、近 7 天趋势、成就。</summary>
+        private void RefreshStats()
+        {
+            int streak = StatsService.CurrentStreak();
+            StreakText.Text = streak > 0
+                ? string.Format(AppStrings.StatsStreakFormat, streak)
+                : AppStrings.StatsStreakEmpty;
+            StreakHintText.Text = string.Format(AppStrings.StatsMaxStreakFormat, StatsService.MaxStreak());
+
+            int goal = DataStore.Instance.Data.Settings.DailyGoalCount;
+            DayProgress today = DailyStats.CountFor(DateTime.Today);
+            if (goal <= 0)
+            {
+                GoalText.Text = AppStrings.StatsGoalOff;
+                GoalProgress.Value = 0;
+            }
+            else
+            {
+                GoalText.Text = today.Done >= goal
+                    ? string.Format(AppStrings.StatsGoalFormat, today.Done, goal) + " · " + AppStrings.StatsGoalDone
+                    : string.Format(AppStrings.StatsGoalFormat, today.Done, goal);
+                GoalProgress.Value = Math.Min(100, today.Done * 100.0 / goal);
+            }
+
+            DateTime from = DateTime.Today.AddDays(-(AppConstants.TrendDays - 1));
+            List<DayStat> trend = StatsService.DailyStatsRange(from, DateTime.Today);
+            TrendTitleText.Text = AppStrings.StatsWeekTitle;
+            _trendBars.Clear();
+            foreach (DayStat stat in trend)
+            {
+                _trendBars.Add(new TrendBarViewModel(stat));
+            }
+
+            RangeSummary week = StatsService.Summarize(trend);
+            WeekSummaryText.Text = string.Format(
+                AppStrings.StatsRangeFormat,
+                week.Done,
+                week.Total,
+                week.Percent,
+                week.FullDays)
+                + " · "
+                + string.Format(AppStrings.StatsStudyFormat, StatsService.FormatStudyDuration(week.StudySeconds));
+
+            DateTime monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            RangeSummary month = StatsService.Summarize(StatsService.DailyStatsRange(monthStart, DateTime.Today));
+            MonthSummaryText.Text = AppStrings.StatsMonthTitle
+                + "："
+                + string.Format(AppStrings.StatsRangeFormat, month.Done, month.Total, month.Percent, month.FullDays)
+                + " · "
+                + string.Format(AppStrings.StatsStudyFormat, StatsService.FormatStudyDuration(month.StudySeconds));
+
+            _achievements.Clear();
+            foreach (Achievement item in StatsService.EvaluateAchievements())
+            {
+                _achievements.Add(item);
+            }
+        }
+
+        /// <summary>展示"发现新版本"提示条。</summary>
+        public void ShowUpdate(UpdateInfo info)
+        {
+            UpdateBannerText.Text = string.Format(AppStrings.UpdateBannerFormat, info.Version);
+            UpdateBanner.Visibility = Visibility.Visible;
+        }
+
+        private void OnUpdateFound(object? sender, UpdateInfo info)
+        {
+            ShowUpdate(info);
         }
 
         private void UpdateHeader()
@@ -265,7 +478,7 @@ namespace LearningReminder.Views
             TodayProgress.Value = progress.Percent;
         }
 
-        private void UpdateBanner()
+        private void UpdatePendingBanner()
         {
             int pendingCount = CheckInService.Instance.Pending.Count;
             if (pendingCount == 0)
@@ -469,6 +682,57 @@ namespace LearningReminder.Views
 
             DataStore.Instance.SaveAndNotify();
             SyncTaskList(forceRebuild: true);
+        }
+
+        /// <summary>开始 / 结束学习计时（时长累计到当天）。</summary>
+        private void OnToggleStudyClick(object sender, RoutedEventArgs e)
+        {
+            TaskCardViewModel? card = GetCardFromSender(sender);
+            if (card == null)
+            {
+                return;
+            }
+
+            StudySessionService.Toggle(card.Task, DateTime.Now);
+            SyncTaskList(forceRebuild: true);
+        }
+
+        /// <summary>补打卡：把选中的过去日期补记为完成。</summary>
+        private void OnBackfillClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is not BackfillRowViewModel row)
+            {
+                return;
+            }
+
+            CheckInService.Instance.Backfill(
+                row.TaskId,
+                _selectedDate.ToString(AppConstants.DateFormat),
+                DateTime.Now);
+        }
+
+        /// <summary>打开设置窗口。</summary>
+        private void OnSettingsClick(object sender, RoutedEventArgs e)
+        {
+            SettingsWindow dialog = new SettingsWindow { Owner = this };
+            dialog.ShowDialog();
+
+            // 设置可能影响界面口径：每日目标、进度等
+            RefreshStats();
+            UpdateHeader();
+        }
+
+        /// <summary>打开新版本下载页。</summary>
+        private void OnGoDownloadClick(object sender, RoutedEventArgs e)
+        {
+            string url = Host?.UpdateInfo?.Url ?? AppConstants.DownloadPageUrl;
+            LinkLauncher.TryOpen(url);
+        }
+
+        /// <summary>关闭"发现新版本"提示条。</summary>
+        private void OnDismissUpdateClick(object sender, RoutedEventArgs e)
+        {
+            UpdateBanner.Visibility = Visibility.Collapsed;
         }
 
         private void OnOpenLinkClick(object sender, RoutedEventArgs e)

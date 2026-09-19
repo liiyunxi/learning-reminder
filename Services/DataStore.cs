@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,7 +12,8 @@ using LearningReminder.Resources;
 namespace LearningReminder.Services
 {
     /// <summary>
-    /// 数据仓库：负责 JSON 落盘/读取、当天记录维护、过期记录清理。
+    /// 数据仓库：负责 JSON 落盘/读取（可选 DPAPI 加密）、每天自动备份、导入导出、
+    /// 当天记录维护与过期记录清理。
     /// 全部调用都在 UI 线程（调度器与界面均运行在 UI 线程），因此内部不加锁。
     /// </summary>
     public sealed class DataStore
@@ -53,7 +56,8 @@ namespace LearningReminder.Services
             {
                 if (File.Exists(AppPaths.DataFile))
                 {
-                    string json = File.ReadAllText(AppPaths.DataFile);
+                    byte[] raw = File.ReadAllBytes(AppPaths.DataFile);
+                    string json = DecodeContent(raw);
                     AppData? loaded = JsonSerializer.Deserialize<AppData>(json, SerializerOptions);
                     if (loaded != null)
                     {
@@ -68,10 +72,7 @@ namespace LearningReminder.Services
                 Data = new AppData();
             }
 
-            Data.Settings ??= new AppSettings();
-            Data.Tasks ??= new List<LearningTask>();
-            Data.Records ??= new List<DailyRecord>();
-
+            Normalize();
             PruneHistory();
             EnsureToday();
             _loaded = true;
@@ -89,8 +90,12 @@ namespace LearningReminder.Services
             try
             {
                 string json = JsonSerializer.Serialize(Data, SerializerOptions);
+                byte[] payload = Data.Settings.EncryptData
+                    ? ProtectedData.Protect(Encoding.UTF8.GetBytes(json), null, DataProtectionScope.CurrentUser)
+                    : Encoding.UTF8.GetBytes(json);
+
                 string tempFile = AppPaths.DataFile + ".tmp";
-                File.WriteAllText(tempFile, json);
+                File.WriteAllBytes(tempFile, payload);
 
                 if (File.Exists(AppPaths.DataFile))
                 {
@@ -175,11 +180,111 @@ namespace LearningReminder.Services
             return null;
         }
 
-        /// <summary>删除任务（同时清理与今天相关的排期状态，历史记录保留）。</summary>
+        /// <summary>删除任务（历史记录保留）。</summary>
         public void RemoveTask(string taskId)
         {
             Data.Tasks.RemoveAll(task => task.Id == taskId);
             SaveAndNotify();
+        }
+
+        /// <summary>创建当天备份（同一天只建一份；数据文件不存在时跳过）。</summary>
+        public void CreateDailyBackup(DateTime now)
+        {
+            try
+            {
+                if (!File.Exists(AppPaths.DataFile))
+                {
+                    return;
+                }
+
+                string target = Path.Combine(
+                    AppPaths.BackupDirectory,
+                    AppConstants.BackupFilePrefix + now.ToString("yyyyMMdd") + AppConstants.BackupFileSuffix);
+                if (!File.Exists(target))
+                {
+                    File.Copy(AppPaths.DataFile, target);
+                }
+
+                PruneBackups();
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Error("创建数据备份失败", ex);
+            }
+        }
+
+        /// <summary>时间戳备份（文件名带时分秒）：导入前与手动备份共用，不会覆盖当天自动备份。</summary>
+        public void CreateTimestampedBackup(DateTime now)
+        {
+            try
+            {
+                if (!File.Exists(AppPaths.DataFile))
+                {
+                    return;
+                }
+
+                string target = Path.Combine(
+                    AppPaths.BackupDirectory,
+                    AppConstants.BackupFilePrefix + now.ToString("yyyyMMdd-HHmmss") + AppConstants.BackupFileSuffix);
+                File.Copy(AppPaths.DataFile, target);
+                PruneBackups();
+            }
+            catch (Exception ex)
+            {
+                FileLogger.Error("创建备份失败", ex);
+            }
+        }
+
+        /// <summary>导出为明文 JSON（便于迁移与人工查看）。</summary>
+        public void ExportTo(string path)
+        {
+            string json = JsonSerializer.Serialize(Data, SerializerOptions);
+            File.WriteAllText(path, json, Encoding.UTF8);
+        }
+
+        /// <summary>从 JSON 文件导入并替换当前数据（导入前自动备份现有数据）。</summary>
+        public void ImportFrom(string path)
+        {
+            string json = File.ReadAllText(path, Encoding.UTF8);
+            AppData? loaded = JsonSerializer.Deserialize<AppData>(json, SerializerOptions);
+            if (loaded == null)
+            {
+                throw new InvalidDataException("导入文件解析结果为空");
+            }
+
+            CreateTimestampedBackup(DateTime.Now);
+            Data = loaded;
+            Normalize();
+            // 重新判定跨天，避免沿用旧日期键
+            _currentDateKey = string.Empty;
+            PruneHistory();
+            EnsureToday();
+            SaveAndNotify();
+        }
+
+        /// <summary>解析数据文件内容：明文 JSON 或 DPAPI 加密内容。</summary>
+        private static string DecodeContent(byte[] raw)
+        {
+            // 明文 JSON 以 { 开头（允许 BOM 与空白）
+            string text = Encoding.UTF8.GetString(raw);
+            string trimmed = text.TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
+            if (trimmed.StartsWith("{", StringComparison.Ordinal))
+            {
+                return text;
+            }
+
+            // 非明文：按当前 Windows 账户解密（DPAPI）
+            byte[] plain = ProtectedData.Unprotect(raw, null, DataProtectionScope.CurrentUser);
+            return Encoding.UTF8.GetString(plain);
+        }
+
+        /// <summary>把可能为空的集合补齐，保持后续逻辑免判空。</summary>
+        private void Normalize()
+        {
+            Data.Settings ??= new AppSettings();
+            Data.Tasks ??= new List<LearningTask>();
+            Data.Records ??= new List<DailyRecord>();
+            Data.Templates ??= new List<TaskTemplate>();
         }
 
         /// <summary>保留最近若干天的记录，避免数据文件无限增长。</summary>
@@ -194,6 +299,32 @@ namespace LearningReminder.Services
 
             // 新的日期排在前面，历史界面直接顺序读取
             Data.Records.Sort((left, right) => string.CompareOrdinal(right.Date, left.Date));
+        }
+
+        /// <summary>备份数量超过上限时删除最旧的备份。</summary>
+        private static void PruneBackups()
+        {
+            DirectoryInfo directory = new DirectoryInfo(AppPaths.BackupDirectory);
+            FileInfo[] files = directory.GetFiles(
+                AppConstants.BackupFilePrefix + "*" + AppConstants.BackupFileSuffix);
+            if (files.Length <= AppConstants.BackupKeepCount)
+            {
+                return;
+            }
+
+            Array.Sort(files, (left, right) => string.CompareOrdinal(left.Name, right.Name));
+            int removeCount = files.Length - AppConstants.BackupKeepCount;
+            for (int index = 0; index < removeCount; index++)
+            {
+                try
+                {
+                    files[index].Delete();
+                }
+                catch (Exception ex)
+                {
+                    FileLogger.Error("清理旧备份失败", ex);
+                }
+            }
         }
 
         /// <summary>数据文件损坏时备份，便于人工排查。</summary>

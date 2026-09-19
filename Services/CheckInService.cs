@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using LearningReminder.Models;
 using LearningReminder.Resources;
 
@@ -113,6 +114,8 @@ namespace LearningReminder.Services
 
             progress.IsCompleted = true;
             progress.CompletedAt = now;
+            progress.NotYetStreak = 0;
+            StudySessionService.Stop(progress, now);
             SchedulePlanner.Clear(progress);
             AddLog(today, task, CheckInAnswer.Completed, string.Empty);
             RemovePending(taskId);
@@ -132,6 +135,7 @@ namespace LearningReminder.Services
 
             DailyRecord today = DataStore.Instance.Today;
             TaskProgress progress = today.GetOrCreate(taskId);
+            progress.NotYetStreak++;
             SchedulePlanner.ApplyRepeat(task, progress, now);
 
             AddLog(today, task, CheckInAnswer.NotYet, string.Empty);
@@ -189,6 +193,8 @@ namespace LearningReminder.Services
             {
                 progress.IsCompleted = true;
                 progress.CompletedAt = now;
+                progress.NotYetStreak = 0;
+                StudySessionService.Stop(progress, now);
                 SchedulePlanner.Clear(progress);
                 AddLog(today, task, CheckInAnswer.Completed, BuildMilestoneDetail(task));
             }
@@ -220,6 +226,61 @@ namespace LearningReminder.Services
             }
         }
 
+        /// <summary>补打卡：把过去某天未完成的任务补记为已完成。</summary>
+        public void Backfill(string taskId, string dateKey, DateTime now)
+        {
+            LearningTask? task = DataStore.Instance.FindTask(taskId);
+            DailyRecord? record = DataStore.Instance.FindRecord(dateKey);
+            if (task == null || record == null)
+            {
+                return;
+            }
+
+            TaskProgress progress = record.GetOrCreate(taskId);
+            if (progress.IsCompleted)
+            {
+                return;
+            }
+
+            if (task.Mode == CheckMode.Milestone)
+            {
+                // 与「已完成」口径一致：里程碑模式下把全部小目标标记完成
+                foreach (MilestoneItem item in task.Milestones)
+                {
+                    MarkMilestone(item, done: true, now);
+                }
+            }
+
+            progress.IsCompleted = true;
+            progress.CompletedAt = ResolveBackfillTime(dateKey, now);
+            progress.NotYetStreak = 0;
+            SchedulePlanner.Clear(progress);
+
+            record.Logs.Add(new CheckInLogEntry
+            {
+                Time = now,
+                TaskId = task.Id,
+                TaskTitle = task.Title,
+                Answer = CheckInAnswer.Backfill,
+                Detail = string.Empty
+            });
+
+            FileLogger.Info("补打卡：" + task.Title + " @ " + dateKey);
+            DataStore.Instance.SaveAndNotify();
+        }
+
+        /// <summary>清空全部待确认项（导入数据后调用）。</summary>
+        public void ClearAll()
+        {
+            if (_pending.Count == 0)
+            {
+                return;
+            }
+
+            _pending.Clear();
+            PendingChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         /// <summary>真实任务被删除或停用时，清理对应待确认项。</summary>
         public void RemovePending(string taskId)
         {
@@ -239,6 +300,22 @@ namespace LearningReminder.Services
 
             item.Done = done;
             item.DoneAt = done ? now : null;
+        }
+
+        /// <summary>补打卡的完成时间：取目标日期的中午，避免显示为操作时间。</summary>
+        private static DateTime ResolveBackfillTime(string dateKey, DateTime now)
+        {
+            if (DateTime.TryParseExact(
+                dateKey,
+                AppConstants.DateFormat,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out DateTime day))
+            {
+                return day.AddHours(12);
+            }
+
+            return now;
         }
 
         private static string BuildMilestoneDetail(LearningTask task)

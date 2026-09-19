@@ -18,5 +18,8 @@ namespace LearningReminder.Models
 
         /// <summary>每日记录（按日期倒序保留最近若干天）</summary>
         public List<DailyRecord> Records { get; set; } = new List<DailyRecord>();
+
+        /// <summary>用户保存的任务模板（内置模板在代码中定义）</summary>
+        public List<TaskTemplate> Templates { get; set; } = new List<TaskTemplate>();
     }
 }

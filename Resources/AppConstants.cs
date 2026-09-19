@@ -45,8 +45,14 @@ namespace LearningReminder.Resources
         /// <summary>最大允许的检查间隔（分钟）</summary>
         public const int MaxIntervalMinutes = 24 * 60;
 
-        /// <summary>"稍后再说"默认推迟时长（分钟）</summary>
+        /// <summary>「稍后再说」默认推迟时长（分钟）</summary>
         public const int DefaultSnoozeMinutes = 15;
+
+        /// <summary>「稍后再说」推迟时长下限（分钟）</summary>
+        public const int MinSnoozeMinutes = 1;
+
+        /// <summary>「稍后再说」推迟时长上限（分钟）</summary>
+        public const int MaxSnoozeMinutes = 180;
 
         /// <summary>待确认项在内存中的最大等待时长（秒），超时按自动推迟处理</summary>
         public const int PendingTimeoutSeconds = 300;
@@ -84,10 +90,72 @@ namespace LearningReminder.Resources
         /// <summary>时间键格式（每日提醒时间）</summary>
         public const string TimeFormat = "HH:mm";
 
+        /// <summary>学习计时显示格式（时:分:秒）</summary>
+        public const string TimerFormat = @"hh\:mm\:ss";
+
         /// <summary>保存的历史记录保留天数</summary>
         public const int HistoryKeepDays = 60;
 
         /// <summary>按 Enter/空格 判定为"已完成"等处理的提示间隔下限，避免重复触发（秒）</summary>
         public const int DuplicateAnswerGuardSeconds = 3;
+
+        // ---------- 数据与隐私 ----------
+        /// <summary>数据备份目录名（位于数据目录下）</summary>
+        public const string BackupFolderName = "backups";
+
+        /// <summary>备份文件前缀（按天备份，如 data-20260919.bak）</summary>
+        public const string BackupFilePrefix = "data-";
+
+        /// <summary>备份文件后缀</summary>
+        public const string BackupFileSuffix = ".bak";
+
+        /// <summary>最多保留的备份份数</summary>
+        public const int BackupKeepCount = 10;
+
+        // ---------- 免打扰 / 每日目标 ----------
+        /// <summary>默认免打扰开始时间</summary>
+        public const string DefaultDndStart = "22:30";
+
+        /// <summary>默认免打扰结束时间</summary>
+        public const string DefaultDndEnd = "07:30";
+
+        /// <summary>每日目标任务数默认值</summary>
+        public const int DefaultDailyGoalCount = 2;
+
+        /// <summary>每日目标任务数的最大值</summary>
+        public const int MaxDailyGoalCount = 20;
+
+        // ---------- 通知聚合 ----------
+        /// <summary>通知聚合窗口（秒）：窗口内产生的多条待确认合并为一条汇总通知</summary>
+        public const int NotificationAggregateSeconds = 2;
+
+        // ---------- 学习时长 ----------
+        /// <summary>一分钟的秒数</summary>
+        public const int SecondsPerMinute = 60;
+
+        /// <summary>一小时的分钟数</summary>
+        public const int MinutesPerHour = 60;
+
+        // ---------- 更新 / 分发 ----------
+        /// <summary>最新发行版查询接口</summary>
+        public const string UpdateLatestReleaseApi =
+            "https://api.github.com/repos/liiyunxi/learning-reminder/releases/latest";
+
+        /// <summary>项目主页</summary>
+        public const string RepositoryUrl = "https://github.com/liiyunxi/learning-reminder";
+
+        /// <summary>发现新版本后引导前往的下载地址</summary>
+        public const string DownloadPageUrl =
+            "https://github.com/liiyunxi/learning-reminder/releases/latest";
+
+        /// <summary>启动后延迟多久检查更新（秒），避免与启动任务抢资源</summary>
+        public const int UpdateCheckDelaySeconds = 8;
+
+        // ---------- 统计 / 成就 ----------
+        /// <summary>成就"早起"的判定小时：完成时间早于该小时算早起打卡</summary>
+        public const int EarlyBirdHour = 9;
+
+        /// <summary>统计页"近 7 天"趋势的天数</summary>
+        public const int TrendDays = 7;
     }
 }

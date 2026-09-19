@@ -6,16 +6,17 @@
         Width="410" SizeToContent="Height"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" ShowInTaskbar="False" ShowActivated="False" Topmost="True"
-        FontFamily="Microsoft YaHei UI, Segoe UI"
+        FontFamily="{StaticResource Font.App}"
+        TextOptions.TextRenderingMode="Aliased"
         Foreground="{StaticResource Brush.Text}">
 
-    <!-- 外圈留白用于容纳投影 -->
+    <!-- 外圈留白用于容纳硬阴影 -->
     <Border Margin="14" Background="{StaticResource Brush.Surface}"
-            BorderBrush="{StaticResource Brush.Border}" BorderThickness="1"
-            CornerRadius="14" Padding="18,16">
+            BorderBrush="{StaticResource Brush.Border}" BorderThickness="2"
+            Padding="18,16">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="18" ShadowDepth="2" Direction="270"
-                              Color="#111827" Opacity="0.16" />
+            <DropShadowEffect BlurRadius="0" ShadowDepth="5" Direction="315"
+                              Color="#1F2033" Opacity="1" />
         </Border.Effect>
 
         <StackPanel>

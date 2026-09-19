@@ -31,6 +31,15 @@ namespace LearningReminder.Models
 
         /// <summary>当天是否已完成首次排期（避免调度器反复重排）</summary>
         public bool Initialized { get; set; }
+
+        /// <summary>当天累计学习时长（秒）</summary>
+        public int StudySeconds { get; set; }
+
+        /// <summary>本次学习开始时间（为空表示未在计时）</summary>
+        public DateTime? SessionStartedAt { get; set; }
+
+        /// <summary>连续"还没完成"次数：用于自动放缓询问节奏</summary>
+        public int NotYetStreak { get; set; }
     }
 
     /// <summary>

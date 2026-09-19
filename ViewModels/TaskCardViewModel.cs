@@ -14,7 +14,9 @@ namespace LearningReminder.ViewModels
         private string _detailText = string.Empty;
         private string _countdownText = string.Empty;
         private string _statusText = string.Empty;
+        private string _studyText = string.Empty;
         private bool _showMilestones;
+        private bool _isStudying;
 
         /// <summary>构造卡片。</summary>
         public TaskCardViewModel(LearningTask task, Action<LearningTask> onMilestoneToggled)
@@ -53,6 +55,44 @@ namespace LearningReminder.ViewModels
 
         /// <summary>是否允许发起检查（停用中的任务不允许）</summary>
         public bool CanCheck => Task.Enabled;
+
+        /// <summary>分组标签（为空时不显示标签块）</summary>
+        public string Tag => Task.Tag;
+
+        /// <summary>是否配置了分组标签</summary>
+        public bool HasTag => !string.IsNullOrWhiteSpace(Task.Tag);
+
+        /// <summary>是否正在计时学习</summary>
+        public bool IsStudying
+        {
+            get => _isStudying;
+            private set
+            {
+                if (SetField(ref _isStudying, value))
+                {
+                    OnPropertyChanged(nameof(StudyButtonText));
+                }
+            }
+        }
+
+        /// <summary>学习计时按钮文案</summary>
+        public string StudyButtonText => IsStudying ? AppStrings.ButtonStopStudy : AppStrings.ButtonStartStudy;
+
+        /// <summary>学习时长文案（未学习时为空）</summary>
+        public string StudyText
+        {
+            get => _studyText;
+            private set
+            {
+                if (SetField(ref _studyText, value))
+                {
+                    OnPropertyChanged(nameof(HasStudyText));
+                }
+            }
+        }
+
+        /// <summary>是否显示学习时长</summary>
+        public bool HasStudyText => !string.IsNullOrEmpty(_studyText);
 
         /// <summary>副标题：间隔说明或里程碑进度</summary>
         public string DetailText
@@ -102,17 +142,47 @@ namespace LearningReminder.ViewModels
             DetailText = BuildDetailText();
             StatusText = BuildStatusText();
             CountdownText = BuildCountdownText(DateTime.Now);
+            RefreshStudy();
 
             // 启用状态变化时，即使不重建卡片也要刷新按钮与标签
             OnPropertyChanged(nameof(IsDisabled));
             OnPropertyChanged(nameof(EnabledButtonText));
             OnPropertyChanged(nameof(CanCheck));
+            OnPropertyChanged(nameof(HasTag));
+            OnPropertyChanged(nameof(Tag));
         }
 
-        /// <summary>每秒调用一次，只更新倒计时文本。</summary>
+        /// <summary>每秒调用一次，只更新倒计时与计时中的学习时长。</summary>
         public void RefreshCountdown(DateTime now)
         {
             CountdownText = BuildCountdownText(now);
+
+            TaskProgress progress = DataStore.Instance.Today.GetOrCreate(Task.Id);
+            if (progress.SessionStartedAt != null)
+            {
+                StudyText = BuildStudyText(progress, now);
+            }
+        }
+
+        /// <summary>刷新学习计时状态与文案。</summary>
+        private void RefreshStudy()
+        {
+            TaskProgress progress = DataStore.Instance.Today.GetOrCreate(Task.Id);
+            IsStudying = progress.SessionStartedAt != null;
+            StudyText = BuildStudyText(progress, DateTime.Now);
+        }
+
+        private static string BuildStudyText(TaskProgress progress, DateTime now)
+        {
+            if (progress.SessionStartedAt != null)
+            {
+                TimeSpan elapsed = TimeSpan.FromSeconds(StudySessionService.ElapsedSeconds(progress, now));
+                return string.Format(AppStrings.StudyRunningFormat, elapsed.ToString(AppConstants.TimerFormat));
+            }
+
+            return progress.StudySeconds > 0
+                ? string.Format(AppStrings.StudyTodayFormat, StatsService.FormatStudyDuration(progress.StudySeconds))
+                : string.Empty;
         }
 
         private string BuildDetailText()

@@ -45,6 +45,7 @@ namespace LearningReminder.Views
             _loading = false;
             UpdateModePanels();
             UpdateRepeatPanels();
+            BuildTemplates();
         }
 
         /// <summary>保存后的任务（取消时为 null）。</summary>
@@ -66,6 +67,7 @@ namespace LearningReminder.Views
         {
             TitleBox.Text = task.Title;
             LinkBox.Text = task.LinkUrl;
+            TagBox.Text = task.Tag;
             IntervalBox.Text = task.IntervalMinutes.ToString();
 
             bool milestoneMode = task.Mode == CheckMode.Milestone;
@@ -263,6 +265,7 @@ namespace LearningReminder.Views
             LearningTask task = _editing ?? new LearningTask();
             task.Title = title;
             task.LinkUrl = link.Length == 0 ? string.Empty : LinkLauncher.Normalize(link);
+            task.Tag = TagBox.Text.Trim();
             task.Repeat = repeat;
             task.Mode = milestoneMode ? CheckMode.Milestone : CheckMode.Interval;
             task.IntervalMinutes = interval;
@@ -435,6 +438,147 @@ namespace LearningReminder.Views
 
             dailyTime = parsed.ToString(AppConstants.TimeFormat);
             return true;
+        }
+
+        /// <summary>构建模板选择区：内置模板 + 用户保存的模板（用户模板可删除）。</summary>
+        private void BuildTemplates()
+        {
+            TemplatePanel.Children.Clear();
+
+            foreach (TaskTemplate template in TaskTemplateLibrary.BuiltIn)
+            {
+                TemplatePanel.Children.Add(BuildTemplateChip(template));
+            }
+
+            foreach (TaskTemplate template in DataStore.Instance.Data.Templates)
+            {
+                TemplatePanel.Children.Add(BuildTemplateChip(template));
+            }
+        }
+
+        private FrameworkElement BuildTemplateChip(TaskTemplate template)
+        {
+            StackPanel panel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Margin = new Thickness(0, 0, 8, 8)
+            };
+
+            Button applyButton = new Button
+            {
+                Content = template.Name,
+                Style = (Style)FindResource("Button.Ghost"),
+                Padding = new Thickness(10, 4, 10, 4),
+                FontSize = 12,
+                Tag = template
+            };
+            applyButton.Click += OnTemplateClick;
+            panel.Children.Add(applyButton);
+
+            if (!template.BuiltIn)
+            {
+                Button deleteButton = new Button
+                {
+                    Content = AppStrings.ButtonDeleteTemplate,
+                    Style = (Style)FindResource("Button.Link"),
+                    Padding = new Thickness(4, 2, 4, 2),
+                    FontSize = 12,
+                    Tag = template
+                };
+                deleteButton.Click += OnDeleteTemplateClick;
+                panel.Children.Add(deleteButton);
+            }
+
+            return panel;
+        }
+
+        /// <summary>套用模板：把模板内容填进表单，重复规则保持当前选择。</summary>
+        private void OnTemplateClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.Tag is not TaskTemplate template)
+            {
+                return;
+            }
+
+            TitleBox.Text = template.Title;
+            TagBox.Text = template.Tag;
+
+            bool milestone = template.Mode == CheckMode.Milestone;
+            ModeMilestoneRadio.IsChecked = milestone;
+            ModeIntervalRadio.IsChecked = !milestone;
+            IntervalBox.Text = SchedulePlanner.NormalizeInterval(template.IntervalMinutes).ToString();
+            NoReminderCheck.IsChecked = false;
+            DailyTimeBox.Text = string.IsNullOrWhiteSpace(template.DailyReminderTime)
+                ? AppConstants.DefaultDailyReminderTime
+                : template.DailyReminderTime;
+            MilestoneBox.Text = string.Join(Environment.NewLine, template.Milestones);
+
+            UpdateModePanels();
+        }
+
+        private void OnDeleteTemplateClick(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.Tag is not TaskTemplate template)
+            {
+                return;
+            }
+
+            DataStore.Instance.Data.Templates.RemoveAll(item => item.Id == template.Id);
+            DataStore.Instance.Save();
+            BuildTemplates();
+        }
+
+        /// <summary>把当前表单内容另存为模板，供以后一键套用。</summary>
+        private void OnSaveTemplateClick(object sender, RoutedEventArgs e)
+        {
+            string title = TitleBox.Text.Trim();
+            if (title.Length == 0)
+            {
+                ShowError(AppStrings.ValidationTemplateNameRequired);
+                return;
+            }
+
+            TaskTemplate template = new TaskTemplate
+            {
+                Name = title,
+                Title = title,
+                Tag = TagBox.Text.Trim(),
+                Mode = ModeMilestoneRadio.IsChecked == true ? CheckMode.Milestone : CheckMode.Interval,
+                IntervalMinutes = SchedulePlanner.NormalizeInterval(
+                    int.TryParse(IntervalBox.Text.Trim(), out int interval)
+                        ? interval
+                        : DataStore.Instance.Data.Settings.DefaultIntervalMinutes)
+            };
+
+            if (template.Mode == CheckMode.Milestone)
+            {
+                template.DailyReminderTime = NoReminderCheck.IsChecked == true
+                    ? string.Empty
+                    : (DateTime.TryParse(DailyTimeBox.Text.Trim(), out DateTime time)
+                        ? time.ToString(AppConstants.TimeFormat)
+                        : AppConstants.DefaultDailyReminderTime);
+                template.Milestones.AddRange(ReadMilestoneLines());
+            }
+
+            DataStore.Instance.Data.Templates.Add(template);
+            DataStore.Instance.Save();
+            BuildTemplates();
+        }
+
+        private List<string> ReadMilestoneLines()
+        {
+            List<string> titles = new List<string>();
+            string[] lines = MilestoneBox.Text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string line in lines)
+            {
+                string trimmed = line.Trim();
+                if (trimmed.Length > 0 && !titles.Contains(trimmed))
+                {
+                    titles.Add(trimmed);
+                }
+            }
+
+            return titles;
         }
 
         private void ShowError(string message)
