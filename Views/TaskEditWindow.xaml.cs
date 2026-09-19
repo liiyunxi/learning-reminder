@@ -267,7 +267,7 @@ namespace LearningReminder.Views
             task.Mode = milestoneMode ? CheckMode.Milestone : CheckMode.Interval;
             task.IntervalMinutes = interval;
             task.DailyReminderTime = milestoneMode ? dailyTime : string.Empty;
-            task.Enabled = true;
+            // 启用 / 停用由主界面卡片控制，编辑时保持原有状态
 
             if (milestoneMode)
             {

@@ -28,6 +28,8 @@ namespace LearningReminder.Resources
         public const string ButtonCheckNow = "立即检查";
         public const string ButtonEdit = "编辑";
         public const string ButtonDelete = "删除";
+        public const string ButtonDisable = "停用";
+        public const string ButtonEnable = "启用";
         public const string ButtonLearnNow = "立即学习";
         public const string ButtonOpenLink = "打开链接";
         public const string ModeIntervalLabel = "定时询问";
@@ -42,6 +44,7 @@ namespace LearningReminder.Resources
         public const string TooltipFinished = "今日已完成";
         public const string StatusCompletedToday = "今日已完成";
         public const string StatusMilestoneFinished = "里程碑已全部完成";
+        public const string StatusDisabled = "已停用";
 
         // ---------- 任务编辑 ----------
         public const string FieldTitle = "任务名称";

@@ -440,6 +440,37 @@ namespace LearningReminder.Views
             Host?.RaiseCheckNow(card.Task);
         }
 
+        /// <summary>停用 / 启用任务：停用后不再提醒，随时可从卡片恢复。</summary>
+        private void OnToggleEnabledClick(object sender, RoutedEventArgs e)
+        {
+            TaskCardViewModel? card = GetCardFromSender(sender);
+            if (card == null)
+            {
+                return;
+            }
+
+            bool enabled = !card.Task.Enabled;
+            card.Task.Enabled = enabled;
+
+            if (enabled)
+            {
+                // 重新启用：按当前时刻恢复排期（今天已完成的任务不再排期）
+                TaskProgress progress = DataStore.Instance.Today.GetOrCreate(card.Task.Id);
+                if (!SchedulePlanner.IsTaskFinished(card.Task, progress))
+                {
+                    SchedulePlanner.ApplyInitial(card.Task, progress, DateTime.Now);
+                }
+            }
+            else
+            {
+                // 停用后立即撤下待确认项，避免继续询问
+                CheckInService.Instance.RemovePending(card.Task.Id);
+            }
+
+            DataStore.Instance.SaveAndNotify();
+            SyncTaskList(forceRebuild: true);
+        }
+
         private void OnOpenLinkClick(object sender, RoutedEventArgs e)
         {
             TaskCardViewModel? card = GetCardFromSender(sender);

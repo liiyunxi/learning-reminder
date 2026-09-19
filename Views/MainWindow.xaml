@@ -142,6 +142,14 @@
                                                                 <TextBlock Text="{Binding StatusText}" FontSize="11"
                                                                            Foreground="{StaticResource Brush.Success}" />
                                                             </Border>
+                                                            <Border Style="{StaticResource Chip}"
+                                                                    Background="{StaticResource Brush.Surface}"
+                                                                    BorderBrush="{StaticResource Brush.Border}"
+                                                                    BorderThickness="1"
+                                                                    Visibility="{Binding IsDisabled, Converter={StaticResource BoolToVisibility}}">
+                                                                <TextBlock Text="{x:Static res:AppStrings.StatusDisabled}" Style="{StaticResource Chip.Text}"
+                                                                           Foreground="{StaticResource Brush.Muted}" />
+                                                            </Border>
                                                         </StackPanel>
 
                                                         <StackPanel Orientation="Horizontal" Margin="0,7,0,0">
@@ -171,7 +179,10 @@
                                                                 Click="OnOpenLinkClick" />
                                                         <Button Content="{x:Static res:AppStrings.ButtonCheckNow}"
                                                                 Style="{StaticResource Button.Ghost}" Margin="0,0,8,0"
+                                                                Visibility="{Binding CanCheck, Converter={StaticResource BoolToVisibility}}"
                                                                 Click="OnCheckNowClick" />
+                                                        <Button Content="{Binding EnabledButtonText}"
+                                                                Style="{StaticResource Button.Link}" Click="OnToggleEnabledClick" />
                                                         <Button Content="{x:Static res:AppStrings.ButtonEdit}"
                                                                 Style="{StaticResource Button.Link}" Click="OnEditTaskClick" />
                                                         <Button Content="{x:Static res:AppStrings.ButtonDelete}"

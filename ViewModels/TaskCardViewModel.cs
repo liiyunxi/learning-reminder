@@ -45,6 +45,15 @@ namespace LearningReminder.ViewModels
         /// <summary>是否配置了学习链接</summary>
         public bool HasLink => Task.HasLink;
 
+        /// <summary>是否已停用（停用后不再提醒，可从卡片一键恢复）</summary>
+        public bool IsDisabled => !Task.Enabled;
+
+        /// <summary>停用 / 启用按钮的文案</summary>
+        public string EnabledButtonText => Task.Enabled ? AppStrings.ButtonDisable : AppStrings.ButtonEnable;
+
+        /// <summary>是否允许发起检查（停用中的任务不允许）</summary>
+        public bool CanCheck => Task.Enabled;
+
         /// <summary>副标题：间隔说明或里程碑进度</summary>
         public string DetailText
         {
@@ -93,6 +102,11 @@ namespace LearningReminder.ViewModels
             DetailText = BuildDetailText();
             StatusText = BuildStatusText();
             CountdownText = BuildCountdownText(DateTime.Now);
+
+            // 启用状态变化时，即使不重建卡片也要刷新按钮与标签
+            OnPropertyChanged(nameof(IsDisabled));
+            OnPropertyChanged(nameof(EnabledButtonText));
+            OnPropertyChanged(nameof(CanCheck));
         }
 
         /// <summary>每秒调用一次，只更新倒计时文本。</summary>
@@ -118,6 +132,12 @@ namespace LearningReminder.ViewModels
 
         private string BuildStatusText()
         {
+            if (!Task.Enabled)
+            {
+                // 停用状态由独立标签展示，避免与"已完成"等信息叠加
+                return string.Empty;
+            }
+
             DailyRecord today = DataStore.Instance.Today;
             TaskProgress progress = today.GetOrCreate(Task.Id);
 
@@ -131,6 +151,12 @@ namespace LearningReminder.ViewModels
 
         private string BuildCountdownText(DateTime now)
         {
+            if (!Task.Enabled)
+            {
+                // 停用中不显示排期，避免误以为到点还会提醒
+                return string.Empty;
+            }
+
             DailyRecord today = DataStore.Instance.Today;
             TaskProgress progress = today.GetOrCreate(Task.Id);
 

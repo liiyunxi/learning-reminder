@@ -47,6 +47,12 @@ namespace LearningReminder.Services
         /// <summary>立即为指定任务发起询问（手动"立即检查"与托盘菜单使用）。</summary>
         public void RaiseNow(LearningTask task, DateTime now)
         {
+            if (!task.Enabled)
+            {
+                // 停用中的任务不发起询问
+                return;
+            }
+
             PendingCheckIn pending = CheckInService.Instance.Raise(task, now);
             CheckInRaised?.Invoke(this, pending);
         }
