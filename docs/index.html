@@ -28,8 +28,8 @@
 
 <section class="hero">
   <div class="container hero-grid">
-    <div>
-      <h1>把学习目标<span class="grad">交给桌面</span><br />每小时一次的<span class="grad">自律确认</span></h1>
+    <div class="hero-copy">
+      <h1>把学习目标<span class="hl">交给桌面</span><br />每小时一次的<span class="hl">自律确认</span></h1>
       <p class="lead">
         「学习计划」常驻在你的 Windows 托盘里：到点用系统通知追问进度，
         支持按小时定时询问，或按里程碑逐项打卡（例如「学完 Redis 的 string、hash」）。
@@ -49,15 +49,15 @@
 
     <div class="mock-window" aria-hidden="true">
       <div class="mock-titlebar">
-        <span class="mock-dot" style="background:#f87171"></span>
-        <span class="mock-dot" style="background:#fbbf24"></span>
-        <span class="mock-dot" style="background:#34d399"></span>
+        <span class="mock-dot dot-danger"></span>
+        <span class="mock-dot dot-warn"></span>
+        <span class="mock-dot dot-ok"></span>
         <span class="mock-title">学习计划</span>
       </div>
       <div class="mock-body">
         <div class="mock-progress-row">
           <span class="t">今日任务</span>
-          <span style="font-size:12px;color:#6b7280">今日完成 1/2（50%）</span>
+          <span class="mock-count">今日完成 1/2（50%）</span>
         </div>
         <div class="mock-bar"><i></i></div>
 
@@ -65,7 +65,7 @@
           <div class="row">
             <span class="name">学习 Redis 数据类型</span>
             <span class="mock-tag">定时询问</span>
-            <span class="mock-tag" style="background:#fff;color:#6b7280;border:1px solid #e5e7eb">每天</span>
+            <span class="mock-tag plain">每天</span>
           </div>
           <div class="sub">每 60 分钟询问一次 · 下次检查 21:00</div>
         </div>
@@ -97,7 +97,7 @@
     <div class="features">
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="4" y="0" width="4" height="1"/><rect x="2" y="1" width="2" height="1"/><rect x="8" y="1" width="2" height="1"/><rect x="1" y="2" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="4" y="4" width="2" height="1"/><rect x="11" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="4" y="5" width="2" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="4" y="6" width="5" height="1"/><rect x="11" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="4" y="7" width="2" height="1"/><rect x="11" y="7" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="11" y="8" width="1" height="1"/><rect x="1" y="9" width="1" height="1"/><rect x="10" y="9" width="1" height="1"/><rect x="2" y="10" width="2" height="1"/><rect x="8" y="10" width="2" height="1"/><rect x="4" y="11" width="4" height="1"/></svg>
         </div>
         <h3>定时询问</h3>
         <p>开始任务后按设定间隔（默认每小时）反复确认进度，答「还没完成」就继续追问，直到你真正做完。</p>
@@ -105,7 +105,7 @@
 
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="10" y="0" width="2" height="1"/><rect x="9" y="1" width="3" height="1"/><rect x="8" y="2" width="3" height="1"/><rect x="7" y="3" width="3" height="1"/><rect x="6" y="4" width="3" height="1"/><rect x="5" y="5" width="3" height="1"/><rect x="0" y="6" width="2" height="1"/><rect x="4" y="6" width="3" height="1"/><rect x="0" y="7" width="3" height="1"/><rect x="4" y="7" width="2" height="1"/><rect x="1" y="8" width="5" height="1"/><rect x="2" y="9" width="3" height="1"/><rect x="3" y="10" width="1" height="1"/></svg>
         </div>
         <h3>里程碑打卡</h3>
         <p>把大目标拆成小目标逐项勾选，例如「看完 string 命令 → 学完 hash 与 zset」，全部完成才算结束。</p>
@@ -113,7 +113,7 @@
 
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="2" y="0" width="1" height="1"/><rect x="9" y="0" width="1" height="1"/><rect x="0" y="1" width="12" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="0" y="4" width="12" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="2" y="5" width="2" height="1"/><rect x="5" y="5" width="2" height="1"/><rect x="8" y="5" width="2" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="11" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="2" y="7" width="2" height="1"/><rect x="5" y="7" width="2" height="1"/><rect x="8" y="7" width="2" height="1"/><rect x="11" y="7" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="11" y="8" width="1" height="1"/><rect x="0" y="9" width="1" height="1"/><rect x="2" y="9" width="2" height="1"/><rect x="5" y="9" width="2" height="1"/><rect x="8" y="9" width="2" height="1"/><rect x="11" y="9" width="1" height="1"/><rect x="0" y="10" width="1" height="1"/><rect x="11" y="10" width="1" height="1"/><rect x="0" y="11" width="12" height="1"/></svg>
         </div>
         <h3>灵活重复规则</h3>
         <p>每天、每周固定一天、每月固定日期，或自定义每周哪几天（一键选工作日）。非执行日安静不打扰。</p>
@@ -121,7 +121,7 @@
 
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="9" y="0" width="1" height="1"/><rect x="9" y="1" width="2" height="1"/><rect x="8" y="2" width="3" height="1"/><rect x="7" y="3" width="4" height="1"/><rect x="6" y="4" width="5" height="1"/><rect x="0" y="5" width="11" height="1"/><rect x="0" y="6" width="11" height="1"/><rect x="6" y="7" width="5" height="1"/><rect x="7" y="8" width="4" height="1"/><rect x="8" y="9" width="3" height="1"/><rect x="9" y="10" width="2" height="1"/><rect x="9" y="11" width="1" height="1"/></svg>
         </div>
         <h3>学习链接直达</h3>
         <p>给任务挂上教程或文档地址，提醒通知和确认卡片上会出现「立即学习」，点开直接进入学习页面。</p>
@@ -129,7 +129,7 @@
 
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="5" y="0" width="2" height="1"/><rect x="4" y="1" width="4" height="1"/><rect x="4" y="2" width="4" height="1"/><rect x="3" y="3" width="6" height="1"/><rect x="3" y="4" width="6" height="1"/><rect x="3" y="5" width="6" height="1"/><rect x="2" y="6" width="8" height="1"/><rect x="2" y="7" width="8" height="1"/><rect x="1" y="8" width="10" height="1"/><rect x="0" y="9" width="12" height="1"/><rect x="4" y="10" width="4" height="1"/><rect x="5" y="11" width="2" height="1"/></svg>
         </div>
         <h3>系统通知带按钮</h3>
         <p>通过 Windows 原生通知中心提醒，通知上直接选择「已完成 / 还没完成 / 稍后再说」，不切窗口也能打卡。</p>
@@ -137,7 +137,7 @@
 
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="0" y="2" width="3" height="1"/><rect x="4" y="2" width="3" height="1"/><rect x="8" y="2" width="3" height="1"/><rect x="0" y="3" width="3" height="1"/><rect x="4" y="3" width="3" height="1"/><rect x="8" y="3" width="3" height="1"/><rect x="0" y="4" width="3" height="1"/><rect x="4" y="4" width="3" height="1"/><rect x="8" y="4" width="3" height="1"/><rect x="0" y="7" width="3" height="1"/><rect x="4" y="7" width="3" height="1"/><rect x="8" y="7" width="3" height="1"/><rect x="0" y="8" width="3" height="1"/><rect x="4" y="8" width="3" height="1"/><rect x="8" y="8" width="3" height="1"/><rect x="0" y="9" width="3" height="1"/><rect x="4" y="9" width="3" height="1"/><rect x="8" y="9" width="3" height="1"/></svg>
         </div>
         <h3>日历查看记录</h3>
         <p>月历用颜色标出每一天的完成度（全部完成 / 部分完成 / 未完成），点选任意一天查看当天的检查流水。</p>
@@ -145,7 +145,7 @@
 
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="4"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="3" y="0" width="1" height="1"/><rect x="8" y="0" width="1" height="1"/><rect x="3" y="1" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="0" y="2" width="12" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="4" y="4" width="4" height="1"/><rect x="11" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="4" y="5" width="4" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="4" y="6" width="4" height="1"/><rect x="11" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="4" y="7" width="4" height="1"/><rect x="11" y="7" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="11" y="8" width="1" height="1"/><rect x="0" y="9" width="12" height="1"/><rect x="3" y="10" width="1" height="1"/><rect x="8" y="10" width="1" height="1"/><rect x="3" y="11" width="1" height="1"/><rect x="8" y="11" width="1" height="1"/></svg>
         </div>
         <h3>常驻低占用</h3>
         <p>基于 .NET 8 WPF 原生开发，纯托盘驻留时私有内存约 20MB，不内嵌浏览器内核，可 7×24 小时后台运行。</p>
@@ -153,7 +153,7 @@
 
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="0" y="0" width="12" height="1"/><rect x="0" y="1" width="12" height="1"/><rect x="0" y="2" width="2" height="1"/><rect x="10" y="2" width="2" height="1"/><rect x="0" y="3" width="2" height="1"/><rect x="10" y="3" width="2" height="1"/><rect x="0" y="4" width="2" height="1"/><rect x="10" y="4" width="2" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="3" y="8" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="7" y="9" width="1" height="1"/><rect x="5" y="10" width="2" height="1"/></svg>
         </div>
         <h3>数据本地存储</h3>
         <p>任务与记录保存在本机 JSON 文件中，不登录、不上传、不联网收集任何个人信息，文件损坏会自动备份。</p>
@@ -161,7 +161,7 @@
 
       <div class="feature">
         <div class="icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+          <svg viewBox="0 0 12 12" width="24" height="24" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" focusable="false"><rect x="5" y="0" width="2" height="1"/><rect x="5" y="1" width="2" height="1"/><rect x="5" y="2" width="2" height="1"/><rect x="4" y="3" width="4" height="1"/><rect x="3" y="4" width="2" height="1"/><rect x="7" y="4" width="2" height="1"/><rect x="2" y="5" width="2" height="1"/><rect x="8" y="5" width="2" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="9" y="6" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="9" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="2" y="9" width="2" height="1"/><rect x="8" y="9" width="2" height="1"/><rect x="3" y="10" width="2" height="1"/><rect x="7" y="10" width="2" height="1"/><rect x="4" y="11" width="4" height="1"/></svg>
         </div>
         <h3>开机自启</h3>
         <p>一键开启登录后自动启动并静默驻留托盘，早上打开电脑，它已经在那里等你开始今天的计划。</p>
@@ -208,7 +208,7 @@
 <footer class="site-footer">
   <div class="container footer-row">
     <div>
-      <div style="font-weight:600;color:#374151;margin-bottom:6px;">学习计划 LearningReminder</div>
+      <div class="footer-brand">学习计划 LearningReminder</div>
       <div>常驻桌面的自律打卡提醒工具 · 数据完全本地存储</div>
     </div>
     <div>
